@@ -1,0 +1,35 @@
+const { mongoose } = require('./../mongoose');
+const { linkSchema } = require('./shared-model-schemas');
+const { MANUFACTURERS, ENUM_MANUFACTURERS, LINK_TYPE, ENUM_LINK_TYPES } = require('./shared-model-constants');
+
+const manufacturerSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        minlength: 3,
+        maxlength: 35,
+        required: true
+    },
+    vtxs: {
+        type: [{
+            name: {
+                type: String,
+                required: true
+            },
+            _ref: {
+                type: mongoose.Schema.Types.ObjectId,
+                required: false
+            }
+        }],
+        required: false
+    },
+    links: {
+        type: [linkSchema],
+        required: false
+    }
+});
+
+const ManufacturerModel = mongoose.model('manufacturer', manufacturerSchema);
+
+module.exports = {
+    ManufacturerModel
+};

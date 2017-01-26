@@ -17,6 +17,7 @@
     "lodash": "^4.17.4",
     "mongodb": "^2.2.19",
     "mongoose": "^4.7.6",
+    "mongoose-type-url": "^1.0.2",
     "validator": "^6.2.1"
   },
   "devDependencies": {

@@ -2,10 +2,10 @@
     "test": {
         "env_name": "test",
         "db": {
-            "mongodb_url": "mongodb://localhost:27017/vtx_api_test"
+            "mongodb_url": "mongodb://<server>:<port>/<db-name>"
         },
         "server":{
-            "server_port": 3000
+            "server_port": <port>
         },
         "settings": {
             "name": "VTX-API-Test"
@@ -14,10 +14,10 @@
     "development": {
         "env_name": "development",
         "db": {
-            "mongodb_url": "mongodb://localhost:27017/vtx_api"
+            "mongodb_url": "mongodb://<server>:<port>/<db-name>"
         },
         "server":{
-            "server_port": 3000
+            "server_port": <port>
         },
         "settings": {
             "name": "VTX-API-Development"

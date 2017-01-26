@@ -1,17 +1,16 @@
-const _ = require('lodash');
-const {ObjectID} = require('mongodb');
-
-const {mongoose} = require('./../../mongoose');
-const {
-    VtxModel,
-    ENUM_MANUFACTURERS,
+const { VtxModel } = require('./../vtx-model');
+const { 
+    MANUFACTURERS,
     ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ
-} = require('./../vtx-model');
+} = require('./../shared-model-constants');
+
 
 const vtx_ET25R = new VtxModel({
     name: 'ET25R', 
     power_mw: [25],
-    _manufacturer: 'Eachine',
+    manufacturer: {
+        name: MANUFACTURERS.EACHINE
+    },
     bands: ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ
 });
 
