@@ -1,6 +1,6 @@
 const { VtxModel } = require('./../vtx-model');
 const { 
-    MANUFACTURERS,
+    MANUFACTURERS,    
     ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ
 } = require('./../shared-model-constants');
 
