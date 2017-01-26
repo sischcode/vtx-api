@@ -1,0 +1,38 @@
+{
+    "test": {
+        "env_name": "test",
+        "db": {
+            "mongodb_url": "mongodb://localhost:27017/vtx_api_test"
+        },
+        "server":{
+            "server_port": 3000
+        },
+        "settings": {
+            "name": "VTX-API-Test"
+        }
+    },
+    "development": {
+        "env_name": "development",
+        "db": {
+            "mongodb_url": "mongodb://localhost:27017/vtx_api"
+        },
+        "server":{
+            "server_port": 3000
+        },
+        "settings": {
+            "name": "VTX-API-Development"
+        }
+    },
+    "production": {
+        "env_name": "production",
+        "db": {
+            "mongodb_url": ""
+        },
+        "server":{
+            "server_port": 0
+        },
+        "settings": {
+            "name": "VTX-API-Production"
+        }
+    }
+}
