@@ -1,4 +1,4 @@
-const { mongoose, __shared__modelOptions } = require('./../mongoose');
+const { mongoose } = require('./../mongoose');
 
 
 const BAND_TYPE = {
@@ -45,6 +45,8 @@ const ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ = ['A', 'B', 'E', 'F', 'R'];
 const ENUM_LINK_TYPES = ['MANUAL'];
 
 const ENUM_MANUFACTURERS = ['Eachine', 'TBS', 'ImmersionRC', 'Boscam'];
+
+
 
 const ratingSchema = new mongoose.Schema({});
 
