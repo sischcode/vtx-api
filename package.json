@@ -4,10 +4,16 @@
   "description": "RESTFul API for Vtx Frequencies and Vtx Information",
   "main": "/src/server/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server/server.js",
+    "start-watch": "nodemon --exec \"npm start\"",
+    "test": "export NODE_ENV=test && mocha src/server/**/*.test.js",
+    "test-watch": "nodemon --exec \"npm test\""
+  },
+  "engines": {
+    "node": "6.9.0"
   },
   "author": "Jörg S.",
-  "license": "MIT",
+  "license": "GPLv3",
   "dependencies": {
     "bcryptjs": "^2.4.0",
     "body-parser": "^1.15.2",
