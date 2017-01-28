@@ -13,6 +13,10 @@ addBandsExpressRoutes(app);
 addVtxExpressRoutes(app);
 addManufacturerExpressRoutes(app);
 
+app.use(function(req, res){
+    res.status(404).send('Oops, that doesn\'t exist, ... I guess.');
+});
+
 app.listen(config.server.server_port, () => {
     console.log('Started server on port ' +config.server.server_port)
 });
