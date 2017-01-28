@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const { mongoose } = require('./../mongoose');
 const { linkSchema } = require('./shared-model-schemas');
 const { 
@@ -74,6 +76,11 @@ const vtxSchema = new mongoose.Schema({
         required: false
     }
 });
+
+vtxSchema.methods.toJSON = function() {
+    const vtx = this.toObject();
+    return _.pick(vtx, ['_id', 'name', 'manufacturer', 'power_mw', 'band_type', 'bands', 'links']);
+};
 
 const VtxModel = mongoose.model('vtx', vtxSchema);
 

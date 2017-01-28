@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const { mongoose } = require('./../mongoose');
 const { linkSchema } = require('./shared-model-schemas');
 const { MANUFACTURERS, ENUM_MANUFACTURERS, LINK_TYPE, ENUM_LINK_TYPES } = require('./shared-model-constants');
@@ -11,6 +13,7 @@ const manufacturerSchema = new mongoose.Schema({
     },
     vtxs: {
         type: [{
+            _id: false,
             name: {
                 type: String,
                 required: true
@@ -27,6 +30,11 @@ const manufacturerSchema = new mongoose.Schema({
         required: false
     }
 });
+
+manufacturerSchema.methods.toJSON = function() {
+    const manufacturer = this.toObject();
+    return _.pick(manufacturer, ['_id', 'name', 'vtxs', 'links']);
+};
 
 const ManufacturerModel = mongoose.model('manufacturer', manufacturerSchema);
 

@@ -4,6 +4,7 @@ const { mongoose } = require('./../mongoose');
 const { LINK_TYPE, ENUM_LINK_TYPES } = require('./shared-model-constants');
 
 const linkSchema = new mongoose.Schema({    
+    _id: false,
     link_type: {
         type: String,
         enum: ENUM_LINK_TYPES,
