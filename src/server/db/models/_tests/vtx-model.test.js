@@ -1,7 +1,7 @@
 const { VtxModel } = require('./../vtx-model');
 const { 
     MANUFACTURERS,    
-    ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ
+    ENUM_ALL_COMMON_BANDS_5P8GHZ
 } = require('./../shared-model-constants');
 
 
@@ -11,7 +11,7 @@ const vtx_ET25R = new VtxModel({
     manufacturer: {
         name: MANUFACTURERS.EACHINE
     },
-    bands: ENUM_ALL_COMMON_FIVE_BANDS_5P8GHZ
+    bands: ENUM_ALL_COMMON_BANDS_5P8GHZ
 });
 
 vtx_ET25R.save().then((data) => {
