@@ -16,7 +16,7 @@ switch(ENV) {
         // MONGODB_URL env var should be set already!
         config.db.mongodb_url = process.env.MONGODB_URL;
         // SERVER_PORT env var should be set already!
-        config.server.server_port = process.env.SERVER_PORT;
+        config.server.server_port = process.env.PORT;
         break;    
     default:
         console.error("no configuration!");
