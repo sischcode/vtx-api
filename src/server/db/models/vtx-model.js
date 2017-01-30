@@ -79,7 +79,7 @@ const vtxSchema = new mongoose.Schema({
 
 vtxSchema.methods.toJSON = function() {
     const vtx = this.toObject();
-    return _.pick(vtx, ['_id', 'name', 'manufacturer', 'power_mw', 'band_type', 'bands', 'links']);
+    return _.pick(vtx, ['_id', 'name', 'manufacturer', 'power_mw', 'band_type', 'bands', 'links', 'desc']);
 };
 
 const VtxModel = mongoose.model('vtx', vtxSchema);
