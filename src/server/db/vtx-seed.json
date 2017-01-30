@@ -1,0 +1,28 @@
+[
+    {
+        "name": "ET25R",
+        "power_mw": [25],
+        "manufacturer": "Eachine", 
+        "bands": ["A", "B", "E", "F", "R"],
+        "desc": "RaceBand is on, when the LEDs for bands A,B,E and F are on"
+    },
+    {
+        "name": "ET25",
+        "power_mw": [25],
+        "manufacturer": "Eachine", 
+        "bands": ["A", "B", "E", "F"]
+    },
+    {
+        "name": "TBS UNIFY PRO 5G8 V2",
+        "power_mw": [25, 200, 500, 800],
+        "manufacturer": "TBS", 
+        "bands": ["A", "B", "E", "F", "R"],
+        "links": [{
+        	"link_type": "WEBSITE",
+        	"url": "http://team-blacksheep.com/products/prod:unify_pro"
+         },{
+         	"link_type": "MANUAL",
+         	"url": "http://www.team-blacksheep.com/tbs-unify-pro-5g8-manual.pdf"
+         }]
+    }
+]
