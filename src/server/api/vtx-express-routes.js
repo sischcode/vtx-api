@@ -8,7 +8,7 @@ const {VtxModel} = require('./../db/models/vtx-model');
 const addVtxExpressRoutes = (app) => {
 
     app.post('/vtxs', (req,res) => {
-        const bodyObj = _.pick(req.body, ['name', 'power_mw', 'manufacturer', 'bands', 'desc', 'band_type', 'similar_to']);        
+        const bodyObj = _.pick(req.body, ['name', 'power_mw', 'manufacturer', 'bands', 'desc', 'band_type', 'similar_to', 'links']);        
         const newVtxObj = new VtxModel(bodyObj);
 
         newVtxObj.save().then((result) => {
