@@ -1,7 +1,7 @@
 {
   "name": "vtx-api",
   "version": "1.0.0",
-  "description": "RESTFul API for Vtx Frequencies and Vtx Information",
+  "description": "WebAPI for Vtx Frequency Calculation and Vtx/Manufacturer Information",
   "main": "/src/server/server.js",
   "scripts": {
     "start": "node src/server/server.js",
