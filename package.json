@@ -7,9 +7,9 @@
     "start": "node src/server/server.js",
     "start-watch": "nodemon --exec \"npm start\"",
     "test:mocha": "export NODE_ENV=test && mocha src/server/**/*.test.js",
-    "test:mocha:watch": "nodemon --exec \"npm test\"",
+    "test:mocha:watch": "nodemon --exec \"npm test:mocha\"",
     "test:ava": "export NODE_ENV=test && ava",
-    "test:ava:watch": "nodemon --exec \"npm test\""
+    "test:ava:watch": "nodemon --exec \"npm test:ava\""
   },
   "engines": {
     "node": "6.9.0"
