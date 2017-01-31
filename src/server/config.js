@@ -1,7 +1,7 @@
 const PROPS = require('./config.json');
 
 const ENV = (process.env.NODE_ENV || PROPS.development.env_name).trim();    // fallback to dev environment
-console.log('process.env.NODE_ENV:', ENV);
+//console.log('process.env.NODE_ENV:', ENV);
 
 let config;
 switch(ENV) {
