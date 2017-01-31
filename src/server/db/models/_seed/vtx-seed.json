@@ -13,7 +13,8 @@
         "bands": ["A", "B", "E", "F"]
     },
     {
-        "name": "TBS UNIFY PRO 5G8 V2",
+        "name": "UNIFY PRO 5G8 V2",
+        "aliases": ["UNIFY PRO V2"],
         "power_mw": [25, 200, 500, 800],
         "manufacturer": "TBS", 
         "bands": ["A", "B", "E", "F", "R"],

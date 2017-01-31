@@ -39,6 +39,14 @@ const vtxSchema = new mongoose.Schema({
         maxlength: 35,
         unique: true
     },
+    aliases: {
+        type: [{
+            type: String,
+            minlength: 3,
+            maxlength: 35    
+        }],
+        required: false        
+    },
     desc: {
         type: String,
         minlength: 20,
@@ -77,10 +85,29 @@ const vtxSchema = new mongoose.Schema({
     }
 });
 
+// Override toJSON to only contain a subset of the original document
 vtxSchema.methods.toJSON = function() {
     const vtx = this.toObject();
     return _.pick(vtx, ['_id', 'name', 'manufacturer', 'power_mw', 'band_type', 'bands', 'links', 'desc']);
 };
+
+vtxSchema.pre('save', function uniquifyAliasesArray(next) {
+    let vtx = this;    
+    if(vtx.isNew || vtx.isModified('aliases')) {       // also check out: doc.$isDefault(path) and isNew
+        vtx.aliases = Array.from(new Set(vtx.aliases));
+    } 
+    next();
+});
+
+vtxSchema.pre('save', function uniquifyLinksArray(next) {
+    let vtx = this;    
+    if(vtx.isNew || vtx.isModified('links')) {       // also check out: doc.$isDefault(path) and isNew
+        vtx.links = Array.from(new Set(vtx.links));
+    } 
+    next();
+});
+
+// TODO: add a post hook, to update the associated manufacturer document with a link to the vtx
 
 const VtxModel = mongoose.model('vtx', vtxSchema);
 

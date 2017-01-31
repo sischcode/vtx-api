@@ -32,6 +32,7 @@ const manufacturerSchema = new mongoose.Schema({
     }
 });
 
+// Override toJSON to only contain a subset of the original document
 manufacturerSchema.methods.toJSON = function() {
     const manufacturer = this.toObject();
     return _.pick(manufacturer, ['_id', 'name', 'vtxs', 'links']);

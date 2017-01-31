@@ -38,12 +38,27 @@ describe('Save vtx model(s) to mongodb:', () => {
         
         // I have to omit 'links' here...otherwise it won't work. which is bad!
         return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links'));
-
-        //return expect(testPromise).to.eventually.containSubset(UNIFY_PRO_HV);        
+        
         /*return testPromise.then( (res) => {
             expect(res).to.have.property('power_mw').to.include.members(ET25R.power_mw);
             expect(res).to.have.deep.property('manufacturer', ET25R.manufacturer);
         });*/
+    });
+
+    it('should save single vtx model and DROP DUPLICATE links!', () => {
+        let UNIFY_PRO_HV = vtxSeed[2];
+        UNIFY_PRO_HV.links = [UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[0]];    // duplicate!
+        const testPromise = new VtxModel(UNIFY_PRO_HV).save();       
+        
+        return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links'));
+    });
+
+    it('should save single vtx model and DROP DUPLICATE aliases!', () => {
+        let UNIFY_PRO_HV = vtxSeed[2];
+        UNIFY_PRO_HV.aliases = [UNIFY_PRO_HV.aliases[0], UNIFY_PRO_HV.aliases[0]];    // duplicate!
+        const testPromise = new VtxModel(UNIFY_PRO_HV).save();       
+        
+        return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links'));
     });
 
     it('should prevent a duplicate entry and fail with an error of code 11000 (for duplicate entry)', () => {
