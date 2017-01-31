@@ -47,7 +47,7 @@ describe('Save vtx model(s) to mongodb:', () => {
 
     it('should save single vtx model and DROP DUPLICATE links!', () => {
         let UNIFY_PRO_HV = vtxSeed[2];
-        UNIFY_PRO_HV.links = [UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[0]];    // duplicate!
+        UNIFY_PRO_HV.links = [UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[1]];    // duplicate!
         const testPromise = new VtxModel(UNIFY_PRO_HV).save();       
         
         return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links'));

@@ -1,0 +1,46 @@
+/*
+    DRAFT!
+    ======
+
+    pilots:
+        - "name" attribute MUST be give
+        - "craft_name" is optional at this point
+        - at least one of [vtx_name, bands, preferred_bands, preferred_frequencies] MUST exist to determine available bands.
+          If more exist, the most specific overrides the more unspecific, the order is:
+          "preferred_frequencies > preferred_bands > [bands|vtx_name]". 
+        - "preferred_frequencies" can be mixed between their band "id" (i.e. "R1" for Raceband 1) and the plain frequency.
+        - If only the vtx_name is given, the call may fail, if said vtx is not available in the DB.
+        - in the future, if a pilot would be registered with name and craft, it would also be possible to directly acces this information.
+        - "polarisation" is optional. If not set, the default will be applied. (defaults can be override per call, though)
+
+    options:
+        - "defaults" OPTIONAL (determine how the API should default in absence of mandatory information):
+            - "polarisation" --> "RHCP",
+            - "bands" --> ["A", "B", "E", "F", "R"]
+        - "min_mhz_spacing" determines the minimal spacing. defaults to 40
+*/
+{
+    "pilots":[{
+        "name": "Name1",
+        "craft_name": "Lisam210-01",
+        "vtx_name": "ET25R",
+        "bands": ["A", "B", "E", "F", "R"],
+        "preferred_bands": ["A","R"],
+        "preferred_frequencies": ["A1", 5800],
+        "polarisation": "RHCP"
+    },{
+        "name": "Name2",
+        "vtx_name": "UNIFY PRO V2",
+        "bands": ["A", "B", "E", "F", "R"],
+        "preferred_bands": ["F","R"],
+        "preferred_frequencies": ["F6", 5800],
+        "polarisation": "RHCP"
+    }],
+    "options":{
+        "defaults": {
+            "polarisation": "RHCP",
+            "bands": ["A", "B", "E", "F", "R"]
+        },
+        "min_mhz_spacing": 40
+    }
+}
