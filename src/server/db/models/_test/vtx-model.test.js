@@ -50,7 +50,7 @@ describe('Save vtx model(s) to mongodb:', () => {
         UNIFY_PRO_HV.links = [UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[0], UNIFY_PRO_HV.links[1]];    // duplicate!
         const testPromise = new VtxModel(UNIFY_PRO_HV).save();       
         
-        return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links'));
+        return testPromise.should.eventually.containSubset( _.omit(UNIFY_PRO_HV, 'links')); // this limitation kinda defeats this test...
     });
 
     it('should save single vtx model and DROP DUPLICATE aliases!', () => {
@@ -73,6 +73,17 @@ describe('Save vtx model(s) to mongodb:', () => {
                 .eventually.be.rejected.and
                 .eventually.have.property('code', 11000)
         ]);
+    });
+
+    it('should save all seed data without a problem', () => {
+        const promises = vtxSeed.map( (vtx) => {
+            return new VtxModel(vtx).save();
+        });
+        const promiseAllArr = promises.map((prom) => {
+            return prom.should.eventually.be.fulfilled;
+        });
+
+        return Promise.all(promiseAllArr);
     });
 
 });

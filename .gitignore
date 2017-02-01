@@ -1,2 +1,4 @@
 node_modules/
 heroku_prod_setup.sh
+npm-debug.log
+src/server/compute

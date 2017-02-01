@@ -53,6 +53,26 @@ const vtxSchema = new mongoose.Schema({
         maxlength: 512,
         required: false
     },
+    special_features: {
+        type: {
+            camvtxcombo: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            pitmode: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+            switchable_power: {
+                type: Boolean,
+                required: false,
+                default: false
+            }
+        },
+        required: false
+    },
     band_type: {
         type: String,
         enum: ENUM_BAND_TYPES,
@@ -88,7 +108,17 @@ const vtxSchema = new mongoose.Schema({
 // Override toJSON to only contain a subset of the original document
 vtxSchema.methods.toJSON = function() {
     const vtx = this.toObject();
-    return _.pick(vtx, ['_id', 'name', 'manufacturer', 'power_mw', 'band_type', 'bands', 'links', 'desc']);
+    return _.pick(vtx, [
+        '_id', 
+        'name', 
+        'manufacturer', 
+        'power_mw', 
+        'band_type', 
+        'bands', 
+        'links', 
+        'special_features',
+        'desc'
+    ]);
 };
 
 vtxSchema.pre('save', function uniquifyAliasesArray(next) {
@@ -102,7 +132,25 @@ vtxSchema.pre('save', function uniquifyAliasesArray(next) {
 vtxSchema.pre('save', function uniquifyLinksArray(next) {
     let vtx = this;    
     if(vtx.isNew || vtx.isModified('links')) {       // also check out: doc.$isDefault(path) and isNew
-        vtx.links = Array.from(new Set(vtx.links));
+        vtx.links = _.uniqBy(vtx.links, 'url');
+    } 
+    next();
+});
+
+vtxSchema.pre('save', function joinSwitchablePowerFeature(next) {
+    let vtx = this;    
+    if(vtx.isNew || vtx.isModified('power_mw')) {       // also check out: doc.$isDefault(path) and isNew
+        if(vtx.power_mw && vtx.power_mw.length > 0) {
+            if(!vtx.special_features) { 
+                vtx.special_features = {}; 
+            }
+
+            if(vtx.power_mw.length > 1) {
+                vtx.special_features.switchable_power = true;
+            } else {    // === 1
+                vtx.special_features.switchable_power = false;
+            } 
+        }
     } 
     next();
 });
