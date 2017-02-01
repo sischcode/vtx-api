@@ -2,21 +2,27 @@
     {
         "name": "ET25R",
         "power_mw": [25],
-        "manufacturer": "Eachine", 
+        "manufacturer": {
+            "name": "Eachine"
+        },
         "bands": ["A", "B", "E", "F", "R"],
         "desc": "RaceBand is on, when the LEDs for bands A,B,E and F are on"
     },
     {
         "name": "ET25",
         "power_mw": [25],
-        "manufacturer": "Eachine", 
+        "manufacturer": {
+            "name": "Eachine"
+        },
         "bands": ["A", "B", "E", "F"]
     },
     {
         "name": "UNIFY PRO 5G8 V2",
         "aliases": ["UNIFY PRO V2"],
         "power_mw": [25, 200, 500, 800],
-        "manufacturer": "TBS", 
+        "manufacturer": {
+            "name": "TBS"
+        },
         "bands": ["A", "B", "E", "F", "R"],
         "links": [{
         	"link_type": "WEBSITE",

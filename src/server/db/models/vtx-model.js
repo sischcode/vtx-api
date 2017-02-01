@@ -1,7 +1,8 @@
 const _ = require('lodash');
 
-const { mongoose } = require('./../mongoose');
-const { linkSchema } = require('./shared-model-schemas');
+const {mongoose} = require('./../mongoose');
+const {enrichManufacturerDocWithVtxIfNecessary} = require('./cross-model-hook-functions');
+const {linkSchema} = require('./shared-model-schemas');
 const { 
     BAND_TYPE, 
     ENUM_BAND_TYPES, 
@@ -144,7 +145,6 @@ vtxSchema.pre('save', function joinSwitchablePowerFeature(next) {
             if(!vtx.special_features) { 
                 vtx.special_features = {}; 
             }
-
             if(vtx.power_mw.length > 1) {
                 vtx.special_features.switchable_power = true;
             } else {    // === 1
@@ -155,7 +155,10 @@ vtxSchema.pre('save', function joinSwitchablePowerFeature(next) {
     next();
 });
 
-// TODO: add a post hook, to update the associated manufacturer document with a link to the vtx
+// See: https://github.com/Automattic/mongoose/issues/3228
+// (TL;DR: this is NOT going to work as planned. Can't be 
+//         (savely) used for updating references)
+vtxSchema.post('save', enrichManufacturerDocWithVtxIfNecessary);
 
 const VtxModel = mongoose.model('vtx', vtxSchema);
 
