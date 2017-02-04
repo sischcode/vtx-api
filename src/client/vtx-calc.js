@@ -85,7 +85,7 @@ const freqIdToFreqObj = (fId) => {
     }
 };
 
-const frequenciesToWeightedFreqsArr = (prefFreqArr, weight=8) => {
+const freqsArrToWeightedFreqsObjArr = (prefFreqArr, weight=8) => {
     return prefFreqArr.map(freqIdToFreqObj)
         .filter((e) => e !== undefined)
         .map((freqObj) => {
@@ -94,7 +94,7 @@ const frequenciesToWeightedFreqsArr = (prefFreqArr, weight=8) => {
         });
 };
 
-const bandsToWeightedFreqsArr = (bandsArr, weight=4) => {
+const bandsArrToWeightedFreqsObjArr = (bandsArr, weight=4) => {
     let arr = bandsArr;
     if(!_.isArray(arr)) {
         arr = [bandsArr];
@@ -124,13 +124,12 @@ const bandsToWeightedFreqsArr = (bandsArr, weight=4) => {
         },[])
         // enrich with weight
         .map((freq) => {
-            let freqObjWithWeight = freq;
-            freqObjWithWeight.w = weight;
-            return freqObjWithWeight;
+            freq.w = weight;
+            return freq;
         })
     );
 };
 
-console.log(frequenciesToWeightedFreqsArr([5880, 5745, 'a1', 'E5', 'Z5']));
+console.log(freqsArrToWeightedFreqsObjArr([5880, 5745, 'a1', 'E5', 'Z5']));
 console.log('------');
-console.log(bandsToWeightedFreqsArr(['F','A'], 2));
+console.log(bandsArrToWeightedFreqsObjArr(['F','A'], 2));
