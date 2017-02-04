@@ -71,6 +71,8 @@ const freqIdToFreqObj = (fId) => {
         return ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === fId);
     } else if(  _.isString(fId) && 
                 fId.length == 2 &&
+                _.isString(fId[0]) &&
+                _.isNumber(parseInt(fId[1])) &&
                 ENUM_ALL_COMMON_BANDS_5P8GHZ.indexOf(fId[0].toUpperCase()) > -1 &&
                 fId[1] > 0 && 
                 fId[1] <= 8 
