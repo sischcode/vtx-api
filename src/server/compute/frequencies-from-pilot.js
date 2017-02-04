@@ -123,10 +123,10 @@ const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
     // add polarisation
     return dedupAndPreferizeWeightedFreqsObjArr(availableWeightedFreqsRaw).map((fo) => {
         fo.p = pilot.polarisation;
+        fo.n = pilot.name;
         return fo;
     });
 };
-
 
 /*const req = {
     "pilots":[{
@@ -139,5 +139,4 @@ const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
         "polarisation": "RHCP"
     }]
 };
-
 console.log(getWeightedDedupedFreqsObjArrFromPilot(req.pilots[0]));*/
