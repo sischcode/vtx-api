@@ -1,57 +1,11 @@
 const _ = require('lodash');
+
 const {
     FREQUENCY_BANDS_5P8GHZ,
+    ORDERED_FREQ_5P8GHZ,
     ENUM_FREQUENCY_BANDS_5P8GHZ,
     ENUM_ALL_COMMON_BANDS_5P8GHZ
 } = require('./../server/db/models/shared-model-constants');
-
-/*
-    weight:
-    =======
-    preferred_frequencies = 8
-    preferred_bands = 4 
-    bands = 2
-    vtx_name = 2
-*/
-
-const ORDERED_FREQ_5P8GHZ 
-    = Object.values(FREQUENCY_BANDS_5P8GHZ)
-            // map bands to array of freq and band. (produces nestes arrays)
-            .map((band) => {
-                return band.freq.reduce((res, freq) => {
-                    res.push({
-                        f: freq,
-                        b: [band.band],
-                        n: [res.length+1]
-                    });
-                    return res;
-                },[]);
-            })
-            // flatten nested maps out
-            .reduce((a,b) => {
-                return a.concat(b);
-            },[])
-            // sort ascending
-            .sort((a,b) => {
-                if(a.f < b.f) return -1;
-                if(a.f > b.f) return 1;
-                if(a.f === b.f) return 0;
-            })
-            // join frequencies that occur in more than one band
-            .reduce((res, next) => {        
-                const idx = res.findIndex((resElem) => {
-                    return _.isEqual(resElem.f, next.f);    // value equality based on frequency
-                });              
-                if(idx > -1) {
-                    res[idx].b.push(next.b[0]);
-                    res[idx].n.push(next.n[0]);
-                } else {
-                    res.push(next);
-                }
-                return res;
-            },[]);
-
-//console.log(ORDERED_FREQ_5P8GHZ);
 
 /*const req = {
     "pilots":[{
@@ -66,15 +20,22 @@ const ORDERED_FREQ_5P8GHZ
 };
 */
 
+/*
+    weight:
+    =======
+    preferred_frequencies = 8
+    preferred_bands = 4 
+    bands = 2
+    vtx_name = 2
+*/
+
 const freqIdToFreqObj = (fId) => {
     if(_.isNumber(fId)) {
         return ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === fId);
-    } else if(  _.isString(fId) && 
-                fId.length == 2 &&
+    } else if(  _.isString(fId) && fId.length == 2 &&
                 _.isNumber(parseInt(fId[1])) &&
                 ENUM_ALL_COMMON_BANDS_5P8GHZ.indexOf(fId[0].toUpperCase()) > -1 &&
-                fId[1] > 0 && 
-                fId[1] <= 8 
+                fId[1] > 0 && fId[1] <= 8 
     ) {
         const f = FREQUENCY_BANDS_5P8GHZ[fId[0].toUpperCase()].freq[fId[1]-1];
         return ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === f);
@@ -89,8 +50,11 @@ const freqsArrToWeightedFreqsObjArr = (prefFreqArr, weight=8) => {
     return prefFreqArr.map(freqIdToFreqObj)
         .filter((e) => e !== undefined)
         .map((freqObj) => {
-            freqObj.w = weight;
-            return freqObj;
+            return {
+                f: freqObj.f,
+                b: freqObj.b,
+                w: weight
+            };
         });
 };
 
@@ -123,13 +87,42 @@ const bandsArrToWeightedFreqsObjArr = (bandsArr, weight=4) => {
             return a.concat(b);
         },[])
         // enrich with weight
-        .map((freq) => {
-            freq.w = weight;
-            return freq;
+        .map((freqObj) => {
+            return {
+                f: freqObj.f,
+                b: freqObj.b,
+                w: weight
+            };
         })
     );
 };
 
-console.log(freqsArrToWeightedFreqsObjArr([5880, 5745, 'a1', 'E5', 'Z5']));
-console.log('------');
-console.log(bandsArrToWeightedFreqsObjArr(['F','A'], 2));
+const weightedFreqsFromFreqs = freqsArrToWeightedFreqsObjArr([5880, 5745, 'a1', 'E5', 'Z5']);
+const weightedFreqsFromPrefBands = bandsArrToWeightedFreqsObjArr(['R'], 4);
+const weightedFreqsFromBands = bandsArrToWeightedFreqsObjArr(['F','R'], 2);
+const weightedFreqsFromVtxBands = bandsArrToWeightedFreqsObjArr(['F','R'], 2);
+const availableWeightedFreqsRaw = 
+    weightedFreqsFromFreqs.concat(weightedFreqsFromPrefBands)
+                          .concat(weightedFreqsFromBands)
+                          .concat(weightedFreqsFromVtxBands);
+
+const availableWeightedFreqs = _.sortBy(availableWeightedFreqsRaw,'f').reduce((res, curr) => {
+    if(res.length === 0) {
+        res.push(curr);
+        return res;
+    }
+
+    const last = res[res.length-1];
+    if(last.f === curr.f) {
+        if(curr.w > last.w) {
+            res[res.length-1] = curr;
+        }
+    } else {
+        res.push(curr);
+    }
+    return res;
+},[]);
+
+console.log(availableWeightedFreqsRaw);
+console.log('---------------------------------');
+console.log(availableWeightedFreqs);

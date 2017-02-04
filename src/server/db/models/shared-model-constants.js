@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const BAND_TYPE = {
     _5P8GHZ: "5P8GHZ",
     _1P3GHZ: "1P3GHZ",
@@ -50,6 +52,43 @@ const FREQUENCY_BANDS_5P8GHZ = {
 const ENUM_FREQUENCY_BANDS_5P8GHZ = Object.keys(FREQUENCY_BANDS_5P8GHZ).map(key => FREQUENCY_BANDS_5P8GHZ[key]);
 const ENUM_ALL_COMMON_BANDS_5P8GHZ = ENUM_FREQUENCY_BANDS_5P8GHZ.map(band => band.band);
 
+const ORDERED_FREQ_5P8GHZ 
+    = Object.values(FREQUENCY_BANDS_5P8GHZ)
+            // map bands to array of freq and band. (produces nestes arrays)
+            .map((band) => {
+                return band.freq.reduce((res, freq) => {
+                    res.push({
+                        f: freq,
+                        b: [band.band],
+                        n: [res.length+1]
+                    });
+                    return res;
+                },[]);
+            })
+            // flatten nested maps out
+            .reduce((a,b) => {
+                return a.concat(b);
+            },[])
+            // sort ascending
+            .sort((a,b) => {
+                if(a.f < b.f) return -1;
+                if(a.f > b.f) return 1;
+                if(a.f === b.f) return 0;
+            })
+            // join frequencies that occur in more than one band
+            .reduce((res, next) => {        
+                const idx = res.findIndex((resElem) => {
+                    return _.isEqual(resElem.f, next.f);    // value equality based on frequency
+                });              
+                if(idx > -1) {
+                    res[idx].b.push(next.b[0]);
+                    res[idx].n.push(next.n[0]);
+                } else {
+                    res.push(next);
+                }
+                return res;
+            },[]);
+
 const MANUFACTURERS = {
     EACHINE: 'Eachine',
     TBS: 'TBS',
@@ -67,6 +106,7 @@ const ENUM_LINK_TYPES = Object.keys(LINK_TYPE).map(key => LINK_TYPE[key]);
 module.exports = {
     ALLOWED_FREQUENCIES_5P8GHZ,
     FREQUENCY_BANDS_5P8GHZ,
+    ORDERED_FREQ_5P8GHZ,
     BAND_TYPE,
     ENUM_BAND_TYPES,
     ENUM_ALL_COMMON_BANDS_5P8GHZ,
