@@ -66,32 +66,34 @@ const ORDERED_FREQ_5P8GHZ
 };
 */
 
-const frequenciesToWeightedFreqsArr = (prefFreqArr) => {
-    return prefFreqArr.map((freq) => {
-        if(_.isNumber(freq)) {
-            let elem = ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === freq);
-            elem.w = 8;            
-            return elem;
-
-        } else if(  _.isString(freq) && 
-                    freq.length == 2 &&
-                    ENUM_ALL_COMMON_BANDS_5P8GHZ.indexOf(freq[0].toUpperCase()) > -1 &&
-                    freq[1] > 0 && 
-                    freq[1] <= 8 
-        ) {
-            const f = FREQUENCY_BANDS_5P8GHZ[freq[0].toUpperCase()].freq[freq[1]-1];
-            let elem = ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === f);
-            elem.w = 8;
-            return elem;
-
-        } else {
-            console.log('invalid frequency: ' +freq);
-            return;
-        }
-    }).filter((e) => e !== undefined);
+const freqIdToFreqObj = (fId) => {
+    if(_.isNumber(fId)) {
+        return ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === fId);
+    } else if(  _.isString(fId) && 
+                fId.length == 2 &&
+                ENUM_ALL_COMMON_BANDS_5P8GHZ.indexOf(fId[0].toUpperCase()) > -1 &&
+                fId[1] > 0 && 
+                fId[1] <= 8 
+    ) {
+        const f = FREQUENCY_BANDS_5P8GHZ[fId[0].toUpperCase()].freq[fId[1]-1];
+        return ORDERED_FREQ_5P8GHZ.find((elem) => elem.f === f);
+    } else {
+        // though, else block is not needed as js returns undefined is nothing is retuned explicitly
+        console.log('invalid frequency: ' +fId);
+        return;
+    }
 };
 
-const bandsToWeightedFreqsArr = (bandsArr, weight) => {
+const frequenciesToWeightedFreqsArr = (prefFreqArr, weight=8) => {
+    return prefFreqArr.map(freqIdToFreqObj)
+        .filter((e) => e !== undefined)
+        .map((freqObj) => {
+            freqObj.w = weight;
+            return freqObj;
+        });
+};
+
+const bandsToWeightedFreqsArr = (bandsArr, weight=4) => {
     let arr = bandsArr;
     if(!_.isArray(arr)) {
         arr = [bandsArr];
@@ -130,4 +132,4 @@ const bandsToWeightedFreqsArr = (bandsArr, weight) => {
 
 console.log(frequenciesToWeightedFreqsArr([5880, 5745, 'a1', 'E5', 'Z5']));
 console.log('------');
-console.log(bandsToWeightedFreqsArr(['F','A'], 4));
+console.log(bandsToWeightedFreqsArr(['F','A'], 2));
