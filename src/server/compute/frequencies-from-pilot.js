@@ -32,6 +32,7 @@ const freqsArrToWeightedFreqsObjArr = (prefFreqArr, weight=8) => {
             return {
                 f: freqObj.f,
                 b: freqObj.b,
+                n: freqObj.n,
                 w: weight
             };
         });
@@ -75,6 +76,7 @@ const bandsArrToWeightedFreqsObjArr = (bandsArr, weight=4) => {
             return {
                 f: freqObj.f,
                 b: freqObj.b,
+                n: freqObj.n,
                 w: weight
             };
         })
@@ -109,6 +111,17 @@ const dedupAndPreferizeWeightedFreqsObjArr = (raw) => {
     preferred_bands = 4 
     bands = 2
     vtx_name = 2
+
+    polarisation defaults to 'RCHP'
+
+    Object: {
+        f: <frequency>,
+        b: [<band>],
+        n: [<number-in-band>],
+        w: <weight>,
+        p: <polarisation>,
+        i: <identifier-pilotname>,
+    }
 */
 const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
     const weightedFreqsFromFreqs     = freqsArrToWeightedFreqsObjArr(pilot.preferred_frequencies, 8);
@@ -122,8 +135,8 @@ const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
                                                             .concat(weightedFreqsFromBands);
     // add polarisation
     return dedupAndPreferizeWeightedFreqsObjArr(availableWeightedFreqsRaw).map((fo) => {
-        fo.p = pilot.polarisation;
-        fo.n = pilot.name;
+        fo.p = pilot.polarisation || 'RCHP';
+        fo.i = pilot.name;
         return fo;
     });
 };
@@ -135,8 +148,7 @@ const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
         "vtx_name": "ET25R",
         //"bands": ["A", "B", "E", "F", "R"],
         "preferred_bands": ["A","R"],
-        "preferred_frequencies": ["A1", 5800],
-        "polarisation": "RHCP"
+        "preferred_frequencies": ["A1", 5800]
     }]
 };
 console.log(getWeightedDedupedFreqsObjArrFromPilot(req.pilots[0]));*/

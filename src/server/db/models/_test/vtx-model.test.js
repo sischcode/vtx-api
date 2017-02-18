@@ -21,7 +21,6 @@ const expect = chai.expect; // ...not so much, but can be useful for unchainable
 //    expect(res).to.have.deep.property('manufacturer', ET25R.manufacturer);
 //});
 
-
 describe('Save vtx model(s) to mongodb:', () => {
     beforeEach((done) => {
         Promise.all([
