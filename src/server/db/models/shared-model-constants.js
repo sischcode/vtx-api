@@ -52,6 +52,9 @@ const FREQUENCY_BANDS_5P8GHZ = {
 const ENUM_FREQUENCY_BANDS_5P8GHZ = Object.keys(FREQUENCY_BANDS_5P8GHZ).map(key => FREQUENCY_BANDS_5P8GHZ[key]);
 const ENUM_ALL_COMMON_BANDS_5P8GHZ = ENUM_FREQUENCY_BANDS_5P8GHZ.map(band => band.band);
 
+/**
+ * Create a sorted array of freqObj, based on the available bands in the 5.8GHz spectrum.
+ */
 const ORDERED_FREQ_5P8GHZ 
     = Object.values(FREQUENCY_BANDS_5P8GHZ)
             // map bands to array of freq and band. (produces nestes arrays)
