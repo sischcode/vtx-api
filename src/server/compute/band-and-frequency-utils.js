@@ -69,4 +69,4 @@ const bandsArrToFreqsObjArr = (bandsArr) => {
 module.exports = {
     freqIdToFreqObj,
     bandsArrToFreqsObjArr
-}
+};

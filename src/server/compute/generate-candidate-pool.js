@@ -80,8 +80,8 @@ const computeOptimalFreqObjArrayForMhzDistance = (  orderedFreqObjArr = ORDERED_
  * 
  */
 const generateSolutionCandidatePoolForFixedMhzMinDistance = (numPilots,                                                     
-                                                    minMhzDistance = 40,
-                                                    orderedFreqObjArr = ORDERED_FREQ_5P8GHZ) => {
+                                                             minMhzDistance = 40,
+                                                             orderedFreqObjArr = ORDERED_FREQ_5P8GHZ) => {
     const candidates = orderedFreqObjArr.map( (freqObj) => {
         return computeOptimalFreqObjArrayForMhzDistance(orderedFreqObjArr, minMhzDistance, freqObj.f);
     });
@@ -161,7 +161,7 @@ const generateSortedSolutionCandidatePoolForNumPilots = (numPilots,
             });
 }
 
-const res = generateSortedSolutionCandidatePoolForNumPilots(4, 60);
+/*const res = generateSortedSolutionCandidatePoolForNumPilots(4, 60);
 console.log(res.length +" candidates meet the requirements");
 const firstNSolutions = res.slice(0,5);
 
@@ -169,10 +169,10 @@ firstNSolutions.forEach( (solution) => {
     console.log("Solution:" +solution);
     console.log("Fitness:" +computeFitnessOfCandidate(solution));
     console.log("------------");
-});
+});*/
 
-
-/*console.log(res);
-console.log("#solutions:" +res.length);
-console.log("best:" +computeFitnessOfCandidate(res[0]));
-console.log("worst:" +computeFitnessOfCandidate(res[res.length-1]));*/
+module.exports = {
+    computeOptimalFreqObjArrayForMhzDistance,
+    generateSolutionCandidatePoolForFixedMhzMinDistance,
+    generateSortedSolutionCandidatePoolForNumPilots
+};

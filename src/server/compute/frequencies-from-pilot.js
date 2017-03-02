@@ -89,15 +89,39 @@ const getWeightedDedupedFreqsObjArrFromPilot = (pilot) => {
     });
 };
 
-/*const req = {
-    "pilots":[{
-        "name": "Name1",
-        "craft_name": "Lisam210-01",
-        "vtx_name": "ET25R",
-        //"bands": ["A", "B", "E", "F", "R"],
-        "preferred_bands": ["A","R"],
-        "preferred_frequencies": ["A1", 5800]
-    }]
+/**
+ * Get available bands from pilot:
+ * - bands, if available, OR
+ * - preferred_bands, if available, OR
+ * - band info constructed from preferred_frequencies
+ * 
+ * Returns an array of Bands (i.e. ['A', 'E', 'R'])
+ */
+const getBandsFromPilot = (pilot) => {
+    if(pilot.bands) {
+        return pilot.bands;
+    } 
+
+    if(pilot.preferred_bands) {
+        return pilot.preferred_bands;
+    }
+
+    if(pilot.preferred_frequencies) {
+        return _.uniq(pilot.preferred_frequencies
+                            .map(freqIdToFreqObj)
+                            .filter((e) => e !== undefined)
+                            .map( (elem) => elem.b)
+                            // flatten
+                            .reduce((a,b) => {
+                                return a.concat(b);
+                            },[])
+        );
+    }
+
+    return [];
 };
-const pilot1FreqArray = getWeightedDedupedFreqsObjArrFromPilot(req.pilots[0]);
-console.log(pilot1FreqArray);*/
+
+module.exports = {
+    getWeightedDedupedFreqsObjArrFromPilot,
+    getBandsFromPilot
+};
