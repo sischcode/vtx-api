@@ -31,6 +31,8 @@ const addCalcExpressRoutes = (app) => {
                                         minMhzSpacing, 
                                         optimizeBy);
 
+        // TODO: re-organize object to return!
+
         if(result.solutions.length < 1) {
             return res.status(200).send({ solution: [] });
         } else {
