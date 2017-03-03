@@ -28,7 +28,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         = generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint(pilots.length, minMhzDistance, baseFreqArr);
     
     // =========================================================================================
-    // ======== Main step: Try to build all "implementations" of a given ========
+    // == Main step: Try to build all "implementations" of a given blueprint (gen. solution) ===
     // =========================================================================================
     // solutionBlueprints = all possibilities (frequency combinations) for the given: #pilots, minMhzDistance and available frequencies (will be FEWER than resulting solutions!)
     // blueprint = one combination of frequencies that meets the requirements for #pilots, minMhzDistance and available frequencies 
