@@ -14,7 +14,7 @@
         - "polarization" is optional. If not set, the default will be applied. (defaults can be override per call, though)
 
     options:
-        - "optimizeBy" determines the method of optimization. defaults to "pilotPreference". (the other method would be "maxMhzDistance")
+        - "optimizeBy" determines the method of optimization. defaults to "pilot_preference". (the other method would be "max_mhz_distance")
         - "min_mhz_spacing" determines the minimal spacing. defaults to 40
 
     (internal defaults: polarization "RHCP")    
@@ -39,7 +39,7 @@
         "preferred_frequencies": ["F6"]
     }],
     "options":{
-        "optimizeBy": "pilotPreference",
+        "optimizeBy": "pilot_preference",
         "min_mhz_spacing": 60
     }
 }

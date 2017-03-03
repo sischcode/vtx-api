@@ -6,6 +6,10 @@ const FpvPilot = require('./classes/FpvPilot');
 const { generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint } = require('./generate-general-solution-pool');
 
 
+const OPTIMIZEBY_PILOT_PREFERENCE = "pilot_preference";
+const OPTIMIZEBY_MAX_MHZ_DISTANCE = "max_mhz_distance";
+const VALID_OPTIMIZEBY_VALUES = [OPTIMIZEBY_PILOT_PREFERENCE, OPTIMIZEBY_MAX_MHZ_DISTANCE];
+
 const computeFeasibleSolutions = (pilots, minMhzDistance) => {
     // based on the pilots' available bands, generate an ordered array of FrequencyObjects
     const baseFreqArr = 
@@ -138,7 +142,7 @@ const evaluateFitnessByPilotPreferences = (solution) => {
  * Combining it all....
  * param "optimizeBy" = "pilotPreferences" | "maxMhzDistance"
  */
-const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPreferences", sortOrder="desc") => {
+const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc") => {
     // helper function to sort by a fitness-function
     const sortSolutionPoolByFitness = (solutionPool, fnFitness, order="asc") => {
         let sortedAsc = solutionPool.sort((a,b) => {
@@ -152,8 +156,10 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPrefer
         return sortedAsc;
     };
 
+    console.log("optimize by " +optimizeBy);
+
     const fnFitness 
-        = optimizeBy === "pilotPreferences" 
+        = optimizeBy === OPTIMIZEBY_PILOT_PREFERENCE 
             ? evaluateFitnessByPilotPreferences 
             : evaluateFitnessByFreqDiff;
     
@@ -162,6 +168,10 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPrefer
         = sortSolutionPoolByFitness(feasibleSolutions.solutions, 
                                     evaluateFitnessByPilotPreferences, 
                                     sortOrder);
+
+    console.log("fitness " +fnFitness(orderedSolutions[0]));
+
+
     return {
         solutionBlueprints: feasibleSolutions.solutionBlueprints,
         solutions: orderedSolutions
@@ -169,7 +179,8 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPrefer
 }
 
 module.exports = {
-    computeAndSortSolutions
+    computeAndSortSolutions,
+    VALID_OPTIMIZEBY_VALUES
 }
 
 // TODO: if equal fitness by preference, than additionally weight by max-mhz-distance

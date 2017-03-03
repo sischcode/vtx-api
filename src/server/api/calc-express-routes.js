@@ -1,34 +1,41 @@
 const _ = require('lodash');
 
+const {validateCalcReqObject} = require('./middleware/validateCalcReqObject');
 const FpvPilot = require('./../logic/classes/FpvPilot');
-const {computeAndSortSolutions} = require('./../logic/generate-solutions');
+const {computeAndSortSolutions, VALID_OPTIMIZEBY_VALUES} = require('./../logic/generate-solutions');
 
 const addCalcExpressRoutes = (app) => {
+    const DEFAULT_OPTIONS_OPTIMIZEBY = VALID_OPTIMIZEBY_VALUES[0];  // pilot_preference
+    const DEFAULT_OPTIONS_MINMHZDISTANCE = 60;
 
-    app.post('/calc/optimizepilotfreqs', (req,res) => {
+    app.post('/calc/optimizepilotfreqs', validateCalcReqObject, (req,res) => {
         const {pilots, options} = _.pick(req.body, ['pilots', 'options']); 
         
-        if(!pilots) {
-            return res.status(400).send("no \"pilots\" array given in request");
-        }
-        if(!_.isArray(pilots)) {
-            return res.status(400).send("\"pilots\" is not an array");
-        }
-        const invalidPilot = pilots.find((pilot) => !_.isObject(pilot));
-        if(invalidPilot) {
-            return res.status(400).send("\"" +invalidPilot +"\" is not a valid pilot-object");
-        }
-        // TODO ...rest of checks
-
+        // construct pilot object array
         const fpvPilotArr = pilots.map(FpvPilot.fromSimpleObject);
 
-        const result = computeAndSortSolutions(fpvPilotArr, options.min_mhz_spacing, options.optimizeBy);
+        // override defaults where applicable
+        let optimizeBy = DEFAULT_OPTIONS_OPTIMIZEBY;
+        let minMhzSpacing = DEFAULT_OPTIONS_MINMHZDISTANCE;
+        if(options) {
+            if(options.min_mhz_spacing) {
+                minMhzSpacing = options.min_mhz_spacing;
+            }
+            if(options.optimizeBy) {
+                optimizeBy = options.optimizeBy;
+            }
+        }
 
-        console.log(fpvPilotArr);
-        console.log("-----");
-        console.log(result.solutions[0]);
+        const result 
+            = computeAndSortSolutions(  fpvPilotArr, 
+                                        minMhzSpacing, 
+                                        optimizeBy);
 
-        res.status(200).send({ best_fit: result.solutions[0] });    // order by pilot_name input order
+        if(result.solutions.length < 1) {
+            return res.status(200).send({ solution: [] });
+        } else {
+            res.status(200).send({ solution: result.solutions[0] });    // order by pilot_name input order
+        }
     });
 
     return app;
