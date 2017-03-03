@@ -5,6 +5,11 @@ const {
     bandsArrToFreqsObjArr
 } = require('./band-and-frequency-utils');
 
+/*
+    OBSOLETE by FpvPilot.js
+*/
+
+
 const freqsArrToWeightedFreqsObjArr = (prefFreqArr, weight=8) => {
     return prefFreqArr.map(freqIdToFreqObj)
         .filter((e) => e !== undefined)

@@ -104,6 +104,9 @@ const identOfFreqArrObj = (arrOfFreqObj) => {
     });
 };
 
+/**
+ * Based on naive computation of sum of distance between every two frequencies.
+ */
 const computeFitnessOfCandidate = (candidate) => {
     if(!candidate) return -1;
 
@@ -140,8 +143,8 @@ const computeFitnessOfCandidate = (candidate) => {
  *
 */ 
 const generateSortedSolutionCandidatePoolForNumPilots = (numPilots, 
-                                                minMhzDistance = 40,
-                                                orderedFreqObjArr = ORDERED_FREQ_5P8GHZ) => {
+                                                         minMhzDistance = 40,
+                                                         orderedFreqObjArr = ORDERED_FREQ_5P8GHZ) => {
     let mhzDistance = minMhzDistance;
     let newCandidates = generateSolutionCandidatePoolForFixedMhzMinDistance(numPilots, mhzDistance, orderedFreqObjArr);
     let rawCandidates = [];

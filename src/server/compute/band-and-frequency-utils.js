@@ -6,6 +6,12 @@ const {
     ENUM_ALL_COMMON_BANDS_5P8GHZ
 } = require('./../db/models/shared-model-constants');
 
+
+/*
+    OBSOLETE by FrequencyUtils.js
+*/
+
+
 /**
  * Returns a freqObj for a given "frequency id" (e.g. "A1").
  * Example: "A1" --> {f: 5865, b: ['A'], n: [1]}

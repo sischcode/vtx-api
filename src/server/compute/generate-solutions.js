@@ -45,9 +45,12 @@ const req = {
     }]
 };
 
-const pilotsFreqs = req.pilots.map(getWeightedDedupedFreqsObjArrFromPilot);
+// todo: check for more than 8 pilots
 
-// get possible bands info from pilots
+const pilotsFreqs = req.pilots.map(getWeightedDedupedFreqsObjArrFromPilot);
+//console.log("freqs:",pilotsFreqs[0]);
+
+// get possible bands info from pilots (obsolete by FpvPilot.js)
 const possibleBands = _.uniq(
     req.pilots.map(getBandsFromPilot)
               // flatten
@@ -56,7 +59,7 @@ const possibleBands = _.uniq(
               },[])
 );
 
-// compute ordered freq list from possible bands
+// compute ordered freq list from possible bands (obsolete by FrequencyUtils.js)
 const baseFreqArr 
     = bandsArrToFreqsObjArr(possibleBands)
         // sort ascending
@@ -95,14 +98,14 @@ const generateSolutions = (solutionCandidates) => {
     // One candidate at a time
     const rawSolutions = solutionCandidates.map((candidate) => {
         // for every frequency of the candidate gather the possible weights
-        const currCandTubleBase = candidate.map( (candFreqObj) => {
+        const currCandTupleBase = candidate.map( (candFreqObj) => {
             // get the weight of particular frequency from pilot (if possible)
             return getWeightArrForFreqForPilots(candFreqObj.f, req.pilots).filter( (elem) => elem != undefined);            
         });
 
         // each pilots name must at least appear once in any of the arrays to construct a feasible solution
         const distinctPilots =
-             _.uniq(currCandTubleBase
+             _.uniq(currCandTupleBase
                     .reduce((a,b) => {
                         return a.concat(b);
                     },[])
@@ -122,7 +125,7 @@ const generateSolutions = (solutionCandidates) => {
         // also mind, that the nested arrays in currCandTubleBase are sorted by pilot name
         
         // create tuples (cartesian product...the easy and inefficient way)
-        const cartesianProduct = Combinatorics.cartesianProduct(...currCandTubleBase).toArray();
+        const cartesianProduct = Combinatorics.cartesianProduct(...currCandTupleBase).toArray();
         
         // find valid combinations (based on unique #pilots)
         const feasibleSolutions = cartesianProduct.filter((innerCandidate) => {
