@@ -7,6 +7,13 @@ class PilotFrequencyObject extends WeightedFrequencyObject {
         this.pilotName = pilotName;
     }
 
+    /**
+     * @override
+     */
+    get ident() {
+        return super.ident + this.pilotName + this.polarisation;
+    }
+
     static fromWeightedFrequencyObject(weightedFreqObj, pilotName, polarisation='RHCP') {
         return new PilotFrequencyObject(weightedFreqObj.freq, 
                                         weightedFreqObj.band, 

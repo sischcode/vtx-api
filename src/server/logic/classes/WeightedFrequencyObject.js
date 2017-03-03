@@ -8,6 +8,13 @@ class WeightedFrequencyObject extends FrequencyObject {
         this.weight = weight;
     }
 
+    /**
+     * @override
+     */
+    get ident() {
+        return super.ident + this.weight;
+    }
+
     static fromFrequencyObject(freqObj, weight=2) {
         return new WeightedFrequencyObject(freqObj.freq, freqObj.band, freqObj.bandNr, weight);
     }

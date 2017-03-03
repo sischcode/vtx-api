@@ -41,6 +41,9 @@ class FpvPilot {
                              .map( (e) => WeightedFrequencyObject.fromFrequencyObject(e, 2));    // weight of 2                         
     }
 
+    /**
+     * return an array of "PilotFrequencyObject"s
+     */
     getDedupedWeightedPilotFreqObjArr() {
         // construct all possible frequencies
         const availableWeightedFreqsRaw 
@@ -56,6 +59,15 @@ class FpvPilot {
                                                                                                   this.pilot_name, 
                                                                                                   this.polarisation);
                                       });
+    }
+
+    /**
+     * return a "PilotFrequencyObject" for a frequency
+     */
+    getWeightForFreq(freq) {
+        return this.getDedupedWeightedPilotFreqObjArr().find((weightedFreqObj) => {
+            return weightedFreqObj.freq === freq;
+        });
     }
 
     /**
@@ -90,6 +102,9 @@ class FpvPilot {
         return [];
     };
 
+    /**
+     * given a list of pilots, compute the possible bands that can be used
+     */
     static getPossibleBandPoolFromPilots(fpvPilotsArr) {
         if(!fpvPilotsArr || !_.isArray(fpvPilotsArr)) {
             return [];
@@ -99,6 +114,13 @@ class FpvPilot {
                                        return a.concat(b);
                                   },[]));
     }    
+
+    /**
+     * returns an array of "PilotFrequencyObject"s
+     */
+    static getWeightFreqArrForFreqForPilots(freq, pilots) {
+        return pilots.map((pilot) => pilot.getWeightForFreq(freq));
+    };
 }
 
 module.exports = FpvPilot;

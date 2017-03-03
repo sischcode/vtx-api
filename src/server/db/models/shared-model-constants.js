@@ -90,7 +90,31 @@ const ORDERED_FREQ_5P8GHZ
                     res.push(next);
                 }
                 return res;
-            },[]);
+            },[]); 
+
+const ORDERED_FREQ_5P8GHZ_SIMPLE
+    = Object.values(FREQUENCY_BANDS_5P8GHZ)
+                // map bands to array of freq and band. (produces nestes arrays)
+                .map((band) => {
+                    return band.freq.reduce((res, freq) => {
+                        res.push({
+                            f: freq,
+                            b: band.band,
+                            n: res.length+1
+                        });
+                        return res;
+                    },[]);
+                })
+                // flatten nested maps out
+                .reduce((a,b) => {
+                    return a.concat(b);
+                },[])
+                // sort ascending
+                .sort((a,b) => {
+                    if(a.f < b.f) return -1;
+                    if(a.f > b.f) return 1;
+                    if(a.f === b.f) return 0;
+                });                            
 
 const MANUFACTURERS = {
     EACHINE: 'Eachine',
@@ -110,6 +134,7 @@ module.exports = {
     ALLOWED_FREQUENCIES_5P8GHZ,
     FREQUENCY_BANDS_5P8GHZ,
     ORDERED_FREQ_5P8GHZ,
+    ORDERED_FREQ_5P8GHZ_SIMPLE,
     BAND_TYPE,
     ENUM_BAND_TYPES,
     ENUM_ALL_COMMON_BANDS_5P8GHZ,
