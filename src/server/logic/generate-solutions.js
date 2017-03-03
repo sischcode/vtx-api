@@ -169,11 +169,10 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPrefer
 }
 
 module.exports = {
-    evaluateFitnessByFreqDiff,
-    evaluateFitnessByPilotPreferences,
     computeAndSortSolutions
 }
 
+// TODO: if equal fitness by preference, than additionally weight by max-mhz-distance
 
 /*
 const pilots = [

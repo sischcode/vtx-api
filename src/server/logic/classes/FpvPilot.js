@@ -14,14 +14,24 @@ const PilotFrequencyObject = require('./PilotFrequencyObject');
     polarisation defaults to 'RCHP'
 */
 class FpvPilot {
-    constructor(pilot_name, craft_name, vtx_name, bands, preferred_bands, preferred_frequencies, polarisation='RHCP') {
+    constructor(pilot_name, craft_name, vtx_name, bands, preferred_bands, preferred_frequencies, polarization='RHCP') {
         this.pilot_name = pilot_name;
         this.craft_name = craft_name;
         this.vtx_name = vtx_name;
         this.bands = bands;
         this.preferred_bands = preferred_bands;
         this.preferred_frequencies = preferred_frequencies;
-        this.polarisation = polarisation;
+        this.polarization = polarization;
+    }
+
+    static fromSimpleObject(obj) {
+        return new FpvPilot(obj.pilot_name,
+                            obj.craft_name,
+                            obj.vtx_name,
+                            obj.bands,
+                            obj.preferred_bands,
+                            obj.preferred_frequencies,
+                            obj.polarization);
     }
 
     getWeightedFreqObjArrOfPrefFreqs() {
@@ -57,7 +67,7 @@ class FpvPilot {
                                       .map((weightedFreqObj) => {
                                           return PilotFrequencyObject.fromWeightedFrequencyObject(weightedFreqObj, 
                                                                                                   this.pilot_name, 
-                                                                                                  this.polarisation);
+                                                                                                  this.polarization);
                                       });
     }
 

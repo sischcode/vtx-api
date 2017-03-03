@@ -5,6 +5,7 @@ const {config} = require('./config');
 const {addBandsExpressRoutes} = require('./api/bands-express-routes');
 const {addVtxExpressRoutes} = require('./api/vtx-express-routes');
 const {addManufacturerExpressRoutes} = require('./api/manufacturer-express-routes');
+const {addCalcExpressRoutes} = require('./api/calc-express-routes');
 
 var app = express();
 app.use(bodyParser.json());
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 addBandsExpressRoutes(app);
 addVtxExpressRoutes(app);
 addManufacturerExpressRoutes(app);
+addCalcExpressRoutes(app);
 
 app.use(function(req, res){
     res.status(404).send('Oops, that doesn\'t exist, ... I guess.');
