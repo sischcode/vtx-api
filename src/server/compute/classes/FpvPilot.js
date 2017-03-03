@@ -49,7 +49,7 @@ class FpvPilot {
                         .concat(this.getWeightedFreqObjArrOfBands());
 
         // a) deduplicate (and when doing so, preferize by weight, where duplicates are)
-        // b) add pilot-namre and polarisation info, by converting to 'PilotFrequencyObject'
+        // b) add pilot-name and polarisation info and convert to 'PilotFrequencyObject's
         return WeightedFrequencyObject.dedupAndPreferizeWeightedFreqsObjArr(availableWeightedFreqsRaw)
                                       .map((weightedFreqObj) => {
                                           return PilotFrequencyObject.fromWeightedFrequencyObject(weightedFreqObj, 
