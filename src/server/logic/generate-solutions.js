@@ -136,8 +136,9 @@ const evaluateFitnessByPilotPreferences = (solution) => {
 
 /**
  * Combining it all....
+ * param "optimizeBy" = "pilotPreferences" | "maxMhzDistance"
  */
-const computeAndSortSolutions = (pilots, minMhzDistance, fnFitness=evaluateFitnessByPilotPreferences, sortOrder="desc") => {
+const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy="pilotPreferences", sortOrder="desc") => {
     // helper function to sort by a fitness-function
     const sortSolutionPoolByFitness = (solutionPool, fnFitness, order="asc") => {
         let sortedAsc = solutionPool.sort((a,b) => {
@@ -151,6 +152,11 @@ const computeAndSortSolutions = (pilots, minMhzDistance, fnFitness=evaluateFitne
         return sortedAsc;
     };
 
+    const fnFitness 
+        = optimizeBy === "pilotPreferences" 
+            ? evaluateFitnessByPilotPreferences 
+            : evaluateFitnessByFreqDiff;
+    
     const feasibleSolutions = computeFeasibleSolutions(pilots, minMhzDistance);
     const orderedSolutions 
         = sortSolutionPoolByFitness(feasibleSolutions.solutions, 
@@ -191,7 +197,7 @@ console.log("Worst: Solution: ",result.solutions[result.solutions.length-1]);
 
 /* 
 // by max mhz distance
-const result = computeAndSortSolutions(pilots, 60, evaluateFitnessByFreqDiff);
+const result = computeAndSortSolutions(pilots, 60, "maxMhzDistance");
 console.log("num solution blueprints (= valid combinations): " +result.solutionBlueprints.length);
 console.log("total solutions: " +result.solutions.length);
 console.log("Best: Fitness:  " +evaluateFitnessByFreqDiff(result.solutions[0]));
