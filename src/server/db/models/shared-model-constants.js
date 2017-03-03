@@ -1,6 +1,10 @@
 const _ = require('lodash');
 const values = require('object.values');
 
+if (!Object.values) {
+    values.shim();
+}
+
 const BAND_TYPE = {
     _5P8GHZ: "5P8GHZ",
     _1P3GHZ: "1P3GHZ",
