@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const values = require('object.values');
 
 const BAND_TYPE = {
     _5P8GHZ: "5P8GHZ",

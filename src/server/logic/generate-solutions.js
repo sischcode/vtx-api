@@ -156,8 +156,6 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_P
         return sortedAsc;
     };
 
-    console.log("optimize by " +optimizeBy);
-
     const fnFitness 
         = optimizeBy === OPTIMIZEBY_PILOT_PREFERENCE 
             ? evaluateFitnessByPilotPreferences 
@@ -169,8 +167,8 @@ const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_P
                                     evaluateFitnessByPilotPreferences, 
                                     sortOrder);
 
-    console.log("fitness " +fnFitness(orderedSolutions[0]));
-
+    //console.log("optimize by " +optimizeBy);
+    //console.log("fitness " +fnFitness(orderedSolutions[0]));
 
     return {
         solutionBlueprints: feasibleSolutions.solutionBlueprints,
