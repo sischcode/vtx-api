@@ -1,4 +1,5 @@
-var validator = require("is-my-json-valid")
+const _ = require('lodash');
+const validator = require("is-my-json-valid")
 
 const {OPTIMIZEBY_PILOT_PREFERENCE, VALID_OPTIMIZEBY_VALUES} = require('./../../logic/generate-solutions');
 const {ENUM_ALL_COMMON_BANDS_5P8GHZ} = require('./../../db/models/shared-model-constants');
@@ -115,6 +116,9 @@ const validateCalcReqObject = (req, res, next) => {
     if(!req.body) {
         return res.status(400).send({error: "no input given..."});
     } else {
+        if(!_.isObject(req.body)) {
+            return res.status(400).send({error: "input is not a valid JSON object"});
+        }
         if(!validateInputObj(req.body)) {
             return res.status(400).send({error: validateInputObj.errors});
         }
