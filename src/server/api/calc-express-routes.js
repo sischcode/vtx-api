@@ -21,8 +21,8 @@ const addCalcExpressRoutes = (app) => {
             if(options.min_mhz_spacing) {
                 minMhzSpacing = options.min_mhz_spacing;
             }
-            if(options.optimizeBy) {
-                optimizeBy = options.optimizeBy;
+            if(options.optimize_by) {
+                optimizeBy = options.optimize_by;
             }
         }
 

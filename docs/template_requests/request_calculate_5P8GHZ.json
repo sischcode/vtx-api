@@ -39,7 +39,7 @@
         "preferred_frequencies": ["F6"]
     }],
     "options":{
-        "optimizeBy": "pilot_preference",
+        "optimize_by": "pilot_preference",
         "min_mhz_spacing": 60
     }
 }

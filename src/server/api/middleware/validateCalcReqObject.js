@@ -78,7 +78,7 @@ const validateInputObj = validator({
             required: false,
             type: "object",
             properties: {
-                optimizeBy: {
+                optimize_by: {
                     required: false,
                     type: "string",
                     enum: VALID_OPTIMIZEBY_VALUES

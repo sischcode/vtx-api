@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const values = require('object.values');
 
+// apply shim for Object.values where necessary
 if (!Object.values) {
     values.shim();
 }
