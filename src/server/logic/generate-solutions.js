@@ -192,7 +192,9 @@ const computeSortAndEnrichSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMI
             });
 
 
-    //TODO: in case of "max_mhz_distance", where there are multiple best solutions, factor in the "pilot_preference" as well!
+    // TODO: in case of "max_mhz_distance", where there are multiple best solutions
+    // a) factor in the "pilot_preference" as well!
+    // b) include the minimal mhz gap of the best solution in the facts
 
     // enrich with some statistics
     return {
