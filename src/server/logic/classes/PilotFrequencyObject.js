@@ -1,26 +1,28 @@
 const WeightedFrequencyObject = require('./WeightedFrequencyObject');
 
 class PilotFrequencyObject extends WeightedFrequencyObject {
-    constructor(freq, band, bandNr, weight, pilotName, polarisation='RHCP') {
+    constructor(freq, band, bandNr, weight, pilotName, craftName, polarization="RHCP") {
         super(freq, band, bandNr, weight);
-        this.polarisation = polarisation;
+        this.polarization = polarization;
         this.pilotName = pilotName;
+        this.craftName = craftName;
     }
 
     /**
      * @override
      */
     get ident() {
-        return super.ident + this.pilotName + this.polarisation;
+        return super.ident + this.pilotName + this.polarization;
     }
 
-    static fromWeightedFrequencyObject(weightedFreqObj, pilotName, polarisation='RHCP') {
+    static fromWeightedFrequencyObject(weightedFreqObj, pilotName, craftName, polarization="RHCP") {
         return new PilotFrequencyObject(weightedFreqObj.freq, 
                                         weightedFreqObj.band, 
                                         weightedFreqObj.bandNr, 
                                         weightedFreqObj.weight,
                                         pilotName, 
-                                        polarisation);
+                                        craftName,
+                                        polarization);
     }    
 }
 

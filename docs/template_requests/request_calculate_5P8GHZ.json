@@ -11,13 +11,13 @@
         - "preferred_frequencies" can be mixed between their band "id" (i.e. "R1" for Raceband 1) and the plain frequency.
         - If only the vtx_name is given, the call may fail, if said vtx is not available in the DB.
         - in the future, if a pilot would be registered with name and craft, it would also be possible to directly acces this information.
-        - "polarization" is optional. If not set, the default will be applied. (defaults can be override per call, though)
+        - "polarization" is optional. If not set it defaults to RHCP
 
     options:
         - "optimizeBy" determines the method of optimization. defaults to "pilot_preference". (the other method would be "max_mhz_distance")
         - "min_mhz_spacing" determines the minimal spacing. defaults to 40
+        - "num_results" determines how many results will be returned. defaults to "BEST" (i.e. best solution only). the other option is "MAX_TOP_10"
 
-    (internal defaults: polarization "RHCP")    
 */
 {
     "pilots":[{
@@ -40,6 +40,7 @@
     }],
     "options":{
         "optimize_by": "pilot_preference",
-        "min_mhz_spacing": 60
+        "min_mhz_spacing": 60,
+        "num_results": "BEST"
     }
 }

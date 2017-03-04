@@ -1,8 +1,17 @@
 var validator = require("is-my-json-valid")
 
-const {VALID_OPTIMIZEBY_VALUES} = require('./../../logic/generate-solutions');
+const {OPTIMIZEBY_PILOT_PREFERENCE, VALID_OPTIMIZEBY_VALUES} = require('./../../logic/generate-solutions');
 const {ENUM_ALL_COMMON_BANDS_5P8GHZ} = require('./../../db/models/shared-model-constants');
 
+
+const DEFAULT_OPTIONS_OPTIMIZEBY = OPTIMIZEBY_PILOT_PREFERENCE;  // pilot_preference
+const DEFAULT_OPTIONS_MINMHZDISTANCE = 60;
+const OPTION_NUM_RESULTS_BEST = "BEST";
+const OPTION_NUM_RESULTS_MAX_TOP_10 = "MAX_TOP_10";
+const OPTIONS_NUM_RESULT = [OPTION_NUM_RESULTS_BEST, OPTION_NUM_RESULTS_MAX_TOP_10];
+const DEFAULT_OPTIONS_NUM_RESULTS = OPTION_NUM_RESULTS_BEST;
+
+// Validate complete input JSON in one step!
 const validateInputObj = validator({
     required: true,
     type: "object",
@@ -88,6 +97,11 @@ const validateInputObj = validator({
                     type: "integer",
                     minimum: 40,
                     maximum: 150
+                },
+                num_results: {
+                    required: false,
+                    type: "string",
+                    enum: OPTIONS_NUM_RESULT
                 }
             }
         }
@@ -108,4 +122,11 @@ const validateCalcReqObject = (req, res, next) => {
     next();
 };
 
-module.exports = {validateCalcReqObject};
+module.exports = {
+    validateCalcReqObject,
+    OPTION_NUM_RESULTS_BEST,
+    OPTION_NUM_RESULTS_MAX_TOP_10,
+    DEFAULT_OPTIONS_OPTIMIZEBY,
+    DEFAULT_OPTIONS_MINMHZDISTANCE,
+    DEFAULT_OPTIONS_NUM_RESULTS
+};

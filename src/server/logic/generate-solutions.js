@@ -140,44 +140,77 @@ const evaluateFitnessByPilotPreferences = (solution) => {
 
 /**
  * Combining it all....
- * param "optimizeBy" = "pilotPreferences" | "maxMhzDistance"
+ * param "optimizeBy" = "pilot_preference" | "max_mhz_distance"
  */
-const computeAndSortSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc") => {
-    // helper function to sort by a fitness-function
-    const sortSolutionPoolByFitness = (solutionPool, fnFitness, order="asc") => {
-        let sortedAsc = solutionPool.sort((a,b) => {
-            if(fnFitness(a) < fnFitness(b)) return -1;
-            if(fnFitness(a) > fnFitness(b)) return 1;
-            if(fnFitness(a) == fnFitness(b)) return 0;
-        });
-        if(order === "desc") {
-            return sortedAsc.reverse();
-        }
-        return sortedAsc;
-    };
-
+const computeSortAndEnrichSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc") => {
     const fnFitness 
         = optimizeBy === OPTIMIZEBY_PILOT_PREFERENCE 
             ? evaluateFitnessByPilotPreferences 
             : evaluateFitnessByFreqDiff;
+
+    // a) enrich with fitness value, based on fitness-function choice
+    // b) sort by fitness value (sortOrder as given)
+    const addAndSortByFitnessFn =  (solutionPool, fnFitness, order="asc") => {
+        let sortedAsc = solutionPool.map((solution) => {
+            return {
+                solution: solution,
+                fitness: fnFitness(solution)
+            };
+        }).sort((a,b) => {
+            if(a.fitness < b.fitness) return -1;
+            if(a.fitness > b.fitness) return 1;
+            if(a.fitness == b.fitness) return 0;
+        });
+
+        if(order === "desc") {
+            return sortedAsc.reverse();
+        };
+    }
     
+    // compute solutions (blueprints), based on general constraints
     const feasibleSolutions = computeFeasibleSolutions(pilots, minMhzDistance);
-    const orderedSolutions 
-        = sortSolutionPoolByFitness(feasibleSolutions.solutions, 
-                                    evaluateFitnessByPilotPreferences, 
-                                    sortOrder);
+    // compute solutions (implementations of said blueprints) that also fulfill the pilot constraints
+    const orderedSolutionsWithFitness
+        = addAndSortByFitnessFn(feasibleSolutions.solutions, 
+                                fnFitness, 
+                                sortOrder);
 
-    //console.log("optimize by " +optimizeBy);
-    //console.log("fitness " +fnFitness(orderedSolutions[0]));
 
+    // order individual(!) solution by pilot input order. (so we re-order the inner order)
+    const pOrdSolsWFitness 
+        = orderedSolutionsWithFitness.map((solutionWithFitness) => {
+                const remappedSolution = pilots.map((pilot) => {            
+                                                    return solutionWithFitness.solution.find((pfo) => pfo.pilotName === pilot.pilot_name);
+                                                })
+                                                // flatten
+                                                .reduce((a,b) => {
+                                                    return a.concat(b);
+                                                },[]);
+
+                solutionWithFitness.solution = remappedSolution;
+                return solutionWithFitness;
+            });
+
+
+    //TODO: in case of "max_mhz_distance", where there are multiple best solutions, factor in the "pilot_preference" as well!
+
+    // enrich with some statistics
     return {
-        solutionBlueprints: feasibleSolutions.solutionBlueprints,
-        solutions: orderedSolutions
+        solution_blueprints: feasibleSolutions.solutionBlueprints,
+        solutions_with_fitness: pOrdSolsWFitness,
+        statistics: {
+            min_fitness: pOrdSolsWFitness.length === 0 ? 0 : pOrdSolsWFitness[pOrdSolsWFitness.length-1].fitness,
+            max_fitness: pOrdSolsWFitness.length === 0 ? 0 : pOrdSolsWFitness[0].fitness,
+            avg_fitness: pOrdSolsWFitness.length === 0 ? 0 : ( (pOrdSolsWFitness.map((sol) => sol.fitness).reduce((a,b) => (a+b))) / pOrdSolsWFitness.length),
+            num_solutions: pOrdSolsWFitness.length
+        }
     };
 }
 
 module.exports = {
-    computeAndSortSolutions,
+    computeSortAndEnrichSolutions,
+    OPTIMIZEBY_PILOT_PREFERENCE,
+    OPTIMIZEBY_MAX_MHZ_DISTANCE,
     VALID_OPTIMIZEBY_VALUES
 }
 

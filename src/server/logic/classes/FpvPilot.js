@@ -35,6 +35,9 @@ class FpvPilot {
     }
 
     getWeightedFreqObjArrOfPrefFreqs() {
+        if(!this.preferred_frequencies) {
+            return [];
+        }
         return this.preferred_frequencies.map(FrequencyUtils.mkFrequencyObjectFromFreqId)
                                          .filter((e) => e !== undefined)
                                          .filter((e) => e !== null)
@@ -66,7 +69,8 @@ class FpvPilot {
         return WeightedFrequencyObject.dedupAndPreferizeWeightedFreqsObjArr(availableWeightedFreqsRaw)
                                       .map((weightedFreqObj) => {
                                           return PilotFrequencyObject.fromWeightedFrequencyObject(weightedFreqObj, 
-                                                                                                  this.pilot_name, 
+                                                                                                  this.pilot_name,
+                                                                                                  this.craft_name, 
                                                                                                   this.polarization);
                                       });
     }
