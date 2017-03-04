@@ -164,8 +164,6 @@ module.exports = {
 };
 
 
-
-
 //console.log(generateFirstFitSolutionForConstraints(60));
 
 //console.log(generateSolutionPoolForConstraints(4,60));
@@ -173,44 +171,3 @@ module.exports = {
 
 //console.log(generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint(4,60));
 //console.log(generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint(4,60).length);
-
-/* 
- // Based on naive computation of sum of distance between every two frequencies.
- // TODO: improve function, so that even-spread gets a better rating!
-const computeFitnessOfSolutionByFreqDiff = (candidate) => {
-    if(!candidate) return -1;
-
-    return candidate.reduce( (res, curr) => {
-        if(res[0] == null) {
-            res[0] = curr;
-        } else {
-            const prev = res[0];
-            const diff = curr.freq - prev.freq;
-            res[1] = res[1]+diff;
-            res[0] = curr;
-        }
-        return res;
-    }, [null,0])[1];   
-};
-
-const sortSolutionPoolByFitness = (solutionPool, fnFitness, order="asc") => {
-    let sortedAsc = solutionPool.sort((a,b) => {
-        if(fnFitness(a) < fnFitness(b)) return -1;
-        if(fnFitness(a) > fnFitness(b)) return 1;
-        if(fnFitness(a) == fnFitness(b)) return 0;
-    });
-    if(order === "desc") {
-        return sortedAsc.reverse();
-    }
-    return sortedAsc;
-};
-
-const widenedSolPool = generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint(4,80); // will expand up, until no solution can be found
-const weightedSortedSolPool = sortSolutionPoolByFitness(widenedSolPool, computeFitnessOfSolutionByFreqDiff, "desc");
-console.log("Num solutions: " +weightedSortedSolPool.length);
-weightedSortedSolPool.forEach( (solution) => {
-    console.log("Solution:",solution);
-    console.log("Fitness:" +computeFitnessOfSolutionByFreqDiff(solution));
-    console.log("------------");
-});
-*/

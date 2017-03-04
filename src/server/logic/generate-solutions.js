@@ -196,6 +196,8 @@ const computeSortAndEnrichSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMI
     // a) factor in the "pilot_preference" as well!
     // b) include the minimal mhz gap of the best solution in the facts
 
+    // TODO: if equal fitness by preference, than additionally weight by max-mhz-distance
+
     // enrich with some statistics
     return {
         solution_blueprints: feasibleSolutions.solutionBlueprints,
@@ -216,7 +218,6 @@ module.exports = {
     VALID_OPTIMIZEBY_VALUES
 }
 
-// TODO: if equal fitness by preference, than additionally weight by max-mhz-distance
 
 /*
 const pilots = [
@@ -248,11 +249,3 @@ console.log("Best: Solution: ",result.solutions[0]);
 console.log("Worst: Fitness:  " +evaluateFitnessByFreqDiff(result.solutions[result.solutions.length-1]));
 console.log("Worst: Solution: ",result.solutions[result.solutions.length-1]);
 */
-
-
-// TODO 1: (alternative) optimize over mhzDistance (gt is better) -> work down from very high distance until a solution is found -> will sacrifice fitness!
-// TODO 2: try to increase mhzDistance without sacrificing fitness.
-//         (lowest mhzDistance determines highest possible fitness)
-
-// Currently it is optimized for weight (i.e. so that it minimizes the pilots that have to change frequency)
-// let user decide minimal mhz Distance, then let them either maximize by a) fitness or b) mhzdistance
