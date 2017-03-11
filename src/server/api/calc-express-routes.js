@@ -67,7 +67,7 @@ const addHintsToSolution = (solution, pilots) => {
 // =============================================================================================
 const addCalcExpressRoutes = (app) => {
     // POST route    
-    app.post('/calc/optimizepilotfreqs', validateCalcReqObject, (req,res) => {
+    app.post('/api/calc/optimizepilotfreqs', validateCalcReqObject, (req,res) => {
         const {pilots, options} = _.pick(req.body, ['pilots', 'options']); 
         
         // construct pilot object array

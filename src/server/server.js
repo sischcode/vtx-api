@@ -10,6 +10,20 @@ const {addCalcExpressRoutes} = require('./api/calc-express-routes');
 var app = express();
 app.use(bodyParser.json());
 
+/**
+ * CORS
+ */
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+/**
+ * Static content. In this case out stub site
+ */
+app.use('/', express.static(__dirname + '/site'));
+
 addBandsExpressRoutes(app);
 addVtxExpressRoutes(app);
 addManufacturerExpressRoutes(app);

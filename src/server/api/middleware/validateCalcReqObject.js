@@ -52,6 +52,7 @@ const validateInputObj = validator({
                         required: false,
                         type: "array",
                         minItems: 1,
+                        maxItems: 5,
                         items: { 
                             type: "string",
                             enum: ENUM_ALL_COMMON_BANDS_5P8GHZ
@@ -62,6 +63,7 @@ const validateInputObj = validator({
                         required: false,
                         type: "array",
                         minItems: 1,
+                        maxItems: 5,
                         items: { 
                             type: "string" ,
                             enum: ENUM_ALL_COMMON_BANDS_5P8GHZ
@@ -72,6 +74,7 @@ const validateInputObj = validator({
                         required: false,
                         type: "array",
                         minItems: 1,
+                        maxItems: 40,
                         items: { 
                             type: "string",
                             minLength: 2,

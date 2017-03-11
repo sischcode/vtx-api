@@ -91,26 +91,26 @@ const handleBandOfBandType = (req,res,bands, band_id) => {
 // ---------------------------------------------------------------------
 const addBandsExpressRoutes = (app) => {
 
-    app.get('/bands', (req,res) => {
+    app.get('/api/bands', (req,res) => {
         return res.status(200).send({
             band_types: ENUM_BAND_TYPES
         });
     });
 
-    app.get('/bands/:band_type', validateBandTypeParam, (req,res) => {
+    app.get('/api/bands/:band_type', validateBandTypeParam, (req,res) => {
         // if it's a valid band_type is already checked in the middleware
         const bands = handleBandsOfBandType(req, res, req.params.band_type);
         return res.status(200).send({bands});
     });
 
-    app.get('/bands/:band_type/:band_id', validateBandTypeParam, (req,res) => {
+    app.get('/api/bands/:band_type/:band_id', validateBandTypeParam, (req,res) => {
         const bands = handleBandsOfBandType(req, res, req.params.band_type);
         const band  = handleBandOfBandType(req, res, bands, req.params.band_id);
         
         return res.status(200).send(band);        
     });
 
-    app.get('/bands/:band_type/:band_id/:num', validateBandTypeParam, (req,res) => {
+    app.get('/api/bands/:band_type/:band_id/:num', validateBandTypeParam, (req,res) => {
         const bands = handleBandsOfBandType(req, res, req.params.band_type);
         const band  = handleBandOfBandType(req, res, bands, req.params.band_id);
         

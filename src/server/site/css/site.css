@@ -1,0 +1,31 @@
+.radio-inline,
+.checkbox-inline,
+.margin-left-0 {
+    margin-left: 0;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+.panel-heading-sm{
+    height: 28px;
+    padding: 4px 10px;
+}
+
+.panel-body-sm{
+   padding: 5px 10px;
+}

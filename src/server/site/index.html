@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>FreqenzR - The API that lets people fly together</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/site.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <!-- this is needed when the site is resized / viewed on mobile -->
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">
+                        <strong>FreqenzR</strong> <span class="label label-warning">Beta</span>
+                    </a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li class="active"><a href="#about">Try It</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">API Docs <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Foo</a></li>
+                                <li><a href="#">Bar</a></li>
+                                <li><a href="#">Baz</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li class="dropdown-header">External resources</li>
+                                <li><a href="#">Some link</a></li>
+                                <li><a href="#">One more separated link</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+        </nav>        
+
+        <!-- in theory, currently, we don't need any ids. though it looks nicer -->
+        <div class="container" id="pilots-input">      
+            
+            <div class="panel-group" id="pilot-accordion">            
+
+                <!-- Pilots-Loop (build a separate panel for every pilot) -->
+                <div v-bind:id="'pilot-' +[index] +'-panel'" v-for="(pilot,index) in pilots" class="panel panel-default">
+                    <div v-bind:id="'pilot-' +[index] +'-panel-heading'" class="panel-heading">
+                        <h3 class="panel-title">
+                            <a v-bind:href="'#pilot-' +[index] +'-panel-collapse'" 
+                                data-toggle="collapse" 
+                                data-parent="#pilot-accordion">Pilot {{index+1}}
+                            </a>
+                        </h3>
+                    </div>
+                    <div v-bind:id="'pilot-' +[index] +'-panel-collapse'" class="panel-collapse collapse">
+                        <div v-bind:id="'pilot-' +[index] +'-panel-body'" class="panel-body">
+                            <!-- PILOT NAME AND PREF. INPUT -->                                
+                            <div v-bind:id="'pilot-' +[index] +'-name'" class="col col-xs-12 col-sm-12 col-md-12 col-lg-2">       
+                                <div class="input-group">                                
+                                    <input type="text" class="form-control" v-model="pilots[index].name">
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <!-- @click="allBandsCbToggle(index, $event)" -->
+                                        <input v-bind:id="'pilot-' +[index] +'-all-cb'" 
+                                               type="checkbox"
+                                               v-model="pilots[index].allBands"><strong>Use all Bands?</strong>
+                                    </label>
+                                </div> 
+                            </div>
+
+                            <!-- Bands-A-R-Loop -->                        
+                            <div v-bind:id="'pilot-' +[index] +'-band-' +band.name" 
+                                 v-for="(band,band_index) in pilot.bands" 
+                                 class="col col-xs-12 col-sm-4 col-md-3 col-lg-2"
+                                 >
+                                <!-- BAND-PANEL -->
+                                <div v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-panel'" class="panel panel-default">     
+                                    <!-- BAND-PANEL-HEADING -->                                                           
+                                    <div class="panel-heading text-left">
+                                        <label>                        
+                                            <!-- @click="singleBandCbToggle(index, band_index, $event)" -->
+                                            <input  type="checkbox" 
+                                                    :disabled="false"
+                                                    v-bind:id="'pilot-' +[index] +'-' +band.name +'-cb'"
+                                                    v-model="pilots[index].bands[band_index].sel"> Band {{band.name}}   
+                                        </label>  
+                                        <label style="padding: 0px 10px;">
+                                            <h5>
+                                                <span data-toggle="collapse" 
+                                                        v-bind:href="'#pilot-' +[index] +'-band-' +band.name +'-collapse-panel'" 
+                                                        class="glyphicon glyphicon-triangle-bottom">
+                                                </span>
+                                            </h5>
+                                        </label>
+                                    </div>
+                                    <!-- /BAND-PANEL-HEADING -->
+                                    <!-- BAND-PANEL-BODY -->
+                                    <div class="collapse panel-collapse" v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-collapse-panel'">
+                                        <div class="panel-body">
+
+                                            <div class="list-group" v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-freqs'">                                                        
+                                                <!-- Band-Freq-Loop (generate Band list items) -->                            
+                                                <ul v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-' +freq.name" 
+                                                    v-for="(freq,freq_index) in band.freqs" 
+                                                    class="list-group-item list-unstyled">                                                        
+
+                                                    <li>
+                                                        <div class="checkbox">
+                                                            <label >
+                                                                <input  type="checkbox" 
+                                                                        v-bind:id="'pilot-' +[index] +'-' +freq.name +'-cb'"
+                                                                        v-model="pilots[index].bands[band_index].freqs[freq_index].sel"                                                                        
+                                                                        >{{freq.name}}: [{{freq.freq}}]
+                                                            </label>
+                                                        </div>
+                                                    </li>
+                                                    
+                                                </ul>                            
+                                                <!-- /Band-Freq-Loop (generate Band list items) -->
+                                            </div>
+
+                                        </div>
+                                    </div> 
+                                    <!-- /BAND-PANEL-BODY -->                           
+                                </div>
+                                <!-- /BAND-PANEL -->
+                            </div>
+                            <!-- /Bands-A-R-Loop -->
+                        </div>
+                    </div>
+                </div>
+                
+                <p></p>
+                <label class="pull-right">
+                    <button v-on:click="reset" class="btn btn-warning"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
+                    <button v-on:click="addPilotInput" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add Pilot</button>
+                </label>
+                <div>                    
+                    <button v-on:click="computeSolutions" class="btn btn-primary">Submit <span class="glyphicon glyphicon-chevron-right"></button>
+                </div>   
+                <p>{{ result }}</p>
+                <p>{{ error_msg }}</p>
+            </div>
+            <!-- /Pilots-Loop (build a separate row for every pilot) -->   
+
+            <!-- TODO: a) add better result / error placement b) cleanup messy vue code
+
+        </div>
+
+        
+
+        <footer class="footer">
+            <div class="container">
+                <p class="text-muted">Place sticky footer content here.</p>
+            </div>
+        </footer>
+
+
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/axios.min.js"></script>
+        <script src="js/vue.min.js"></script>
+        <script src="js/vue_app.js"></script>
+    </body>
+</html>

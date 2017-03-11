@@ -6,7 +6,7 @@ const {ManufacturerModel} = require('./../db/models/manufacturer-model');
 
 
 const addManufacturerExpressRoutes = (app) => {
-    app.get('/manufacturers', (req,res) => {
+    app.get('/api/manufacturers', (req,res) => {
         ManufacturerModel.find({}).then((result) => {
             return res.status(200).send({
                 vtxs: result,
@@ -17,7 +17,7 @@ const addManufacturerExpressRoutes = (app) => {
         });
     });
 
-    app.get('/manufacturers/:id', validateIdParam, (req, res) => {
+    app.get('/api/manufacturers/:id', validateIdParam, (req, res) => {
         ManufacturerModel.findById(req.params.id).then((result) => {
             if(!result) {
                 res.status(404).send();
