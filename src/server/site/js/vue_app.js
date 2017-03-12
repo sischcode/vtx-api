@@ -174,7 +174,10 @@ const pilotInput = new Vue({
         prefs: {},
         result: {},
         error: {},
-        debug: {}
+        debug: {},
+        site: {
+            loading: false
+        }
     },
 
     mounted() {
@@ -193,6 +196,7 @@ const pilotInput = new Vue({
             this.result = dataInit.result;
             this.error = dataInit.error;
             this.debug = dataInit.debug;
+            this.site.loading = false;
         },
         showError(errString) {
             this.error.data = errString;
@@ -246,6 +250,7 @@ const pilotInput = new Vue({
             console.log(JSON.stringify(postRequest));
 
             // post data to API and handle response 
+            this.site.loading = true;
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
                  .then(succ => {
                      console.log(succ.data.results);
@@ -254,6 +259,7 @@ const pilotInput = new Vue({
                      } else {
                         this.showDebug(succ.data); 
                      }
+                     this.site.loading = false;
                  })
                  .catch(err => {
                      if(!err.response) {
@@ -263,6 +269,7 @@ const pilotInput = new Vue({
                         console.log("error", err.response.data.error);    // is still a JSON at this point
                         this.showError(err.response.data.error[0]);
                      }
+                     this.site.loading = false;
                  });
         }
     }
