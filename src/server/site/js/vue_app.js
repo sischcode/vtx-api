@@ -101,22 +101,50 @@ const mkPilot = (name) => {
     }
 }
 
-const pilotInput = new Vue({
-    el: '#pilots-input',
-    data: {        
-        pilots: [],
-        pref: {
-            mindist: 60,
-            optimizeby: 'pilot_preference'
+const pref_def_mindist = 60;
+const pref_def_optimizeby = 'pilot_preference';
+const pref_def_numresults = 'BEST';
+
+const init = () => {    
+    return {
+        // PilotInput-Area
+        pilots: [mkPilot('Name-1'), mkPilot('Name-2')],
+        // Preferences
+        prefs: {
+            min_mhz_dist: pref_def_mindist,
+            optimize_by: pref_def_optimizeby
         },
+        // Result View
         result: {
             data: null,
             hidden: true
+        },
+        // Error View
+        error: {
+            data: null,
+            hidden: true
+        },
+        // Debug View
+        debug: {
+            is_debug_mode: false,
+            data: null,
+            hidden: true
         }
+    }   
+};
+
+const pilotInput = new Vue({
+    el: '#pilots-input',
+    data: {
+        pilots: [],
+        prefs: {},
+        result: {},
+        error: {},
+        debug: {}
     },
 
     mounted() {
-        this.pilots = [mkPilot('Name-1'), mkPilot('Name-2')];
+        this.reset();
     },
 
     /*beforeUpdate() {
@@ -125,10 +153,31 @@ const pilotInput = new Vue({
 
     methods: {
         reset() {
-            this.pilots = [mkPilot('Name-1'), mkPilot('Name-2')];
-            this.result.data = null;
+            dataInit = init();
+            this.pilots = dataInit.pilots;
+            this.prefs = dataInit.prefs;
+            this.result = dataInit.result;
+            this.error = dataInit.error;
+            this.debug = dataInit.debug;
+        },
+        showError(errString) {
+            this.error.data = errString;
             this.result.hidden = true;
+            this.debug.hidden  = true;
+            this.error.hidden  = false;
         },        
+        showResult(resultObj) {
+            this.result.data = resultObj;
+            this.result.hidden = false;
+            this.debug.hidden  = true;
+            this.error.hidden  = true;
+        },  
+        showDebug(debugObj) {
+            this.debug.data = debugObj;
+            this.result.hidden = true;
+            this.debug.hidden  = false;
+            this.error.hidden  = true;
+        },  
         addPilotInput() {
             if(this.pilots.length < 8) {
                 const n = this.pilots.length+1;
@@ -137,32 +186,44 @@ const pilotInput = new Vue({
         },
         computeSolutions() {
             const pilotsInput = this.pilots.map(pilotToPilotReq);
+            
+            // validate pilots-iput
             if(pilotsInput.some((e) => e === null)) {
-                this.result.data = "One or more pilots don't have sufficient freq-config to compute a solution";
-                this.result.hidden = false;
+                this.showError("One or more pilots don't have sufficient freq-config to compute a solution");
                 return;
             }
 
+            // validate options
+            if(Number.isNaN(this.prefs.min_mhz_dist) || this.prefs.min_mhz_dist < 40 || this.prefs.min_mhz_dist > 150) {
+                this.showError("Minimal MHz distance is out of limits (should be between 40 and 150)");
+                return;
+            }
+
+            // build up request post data
             const postRequest = {
                 pilots: pilotsInput,
                 options: {
-                    optimize_by: this.pref.optimizeby,
-                    min_mhz_spacing: this.pref.mindist
+                    optimize_by: this.prefs.optimize_by,
+                    min_mhz_spacing: this.prefs.min_mhz_dist,
+                    num_results: this.debug.is_debug_mode ? 'MAX_TOP_10' : this.prefs.num_results
                 }
             };
 
             console.log(JSON.stringify(postRequest));
 
+            // post data to API and handle response 
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
                  .then(response => {
-                     console.log(response.data);
-                     this.result.data = response.data;
-                     this.result.hidden = false;
+                     console.log(response.data.results);
+                     if(!this.debug.is_debug_mode) {
+                        this.showResult(response.data);
+                     } else {
+                        this.showDebug(response.data); 
+                     }
                  })
-                 .catch(error => {
-                     console.log("error", error);
-                     this.result.data = error;
-                     this.result.hidden = false;
+                 .catch(response => {
+                     console.log("error", response.response.data.error);    // is still a JSON at this point
+                     this.showError(response.response.data.error[0]);
                  });
         }
     }

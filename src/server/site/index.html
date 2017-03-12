@@ -51,7 +51,8 @@
         </nav>        
 
         <!-- in theory, currently, we don't need any ids. though it looks nicer -->
-        <div class="container" id="pilots-input">      
+        <div class="container" id="pilots-input">
+            
             
             <!-- accordion panel-group -->
             <div class="panel-group" id="input-accordion">            
@@ -68,7 +69,7 @@
                     </div>
                     <div :id="'pilot-' +[index] +'-panel-collapse'" class="panel-collapse collapse">
                         <div :id="'pilot-' +[index] +'-panel-body'" class="panel-body">
-                            <!-- PILOT NAME AND PREF. INPUT -->                                
+                            <!-- PILOT NAME AND prefs. INPUT -->                                
                             <div :id="'pilot-' +[index] +'-name'" class="col col-xs-12 col-sm-12 col-md-12 col-lg-2">       
                                 <div class="input-group">                                
                                     <input type="text" class="form-control" v-model="pilots[index].name">
@@ -156,35 +157,73 @@
                         </h3>
                     </div>
                     <div id="options-collapse-panel" class="panel-collapse collapse">
-                        <div id="options-collapse-panel-body" class="panel-body">                           
-                            <div class="col col-xs-12 col-sm-6 col-md-6 col-lg-4">
+                        <div id="options-collapse-panel-body" class="panel-body">
+                            <!-- OPTIONS: min_mhz_distance -->                           
+                            <div class="col col-xs-12 col-sm-4 col-md-6 col-lg-3">
                                 <div class="form-inline">
                                     <div class="form-group">
-                                        <label for="pref-mindistance">Min. MHz Distance:</label>                                
-                                        <input id="pref-mindistance" type="number" class="form-control" v-model.number="pref.mindist">
+                                        <label for="prefs-mindistance">Min. MHz Distance:</label>                                
+                                        <input id="prefs-mindistance" type="number" class="form-control" v-model.number="prefs.min_mhz_dist">
                                     </div>
                                 </div>
                             </div>
+                            <!-- /OPTIONS: min_mhz_distance -->
+
                             <!-- this currently doesn't make sense, since the pilot_preference automatically also maximizes mhz distance,
-                                 while the mhz_distance doesn't optimize by pilot_preference as well...                            
-                            
-                            <div class="col col-xs-12 col-sm-12 col-md-6 col-lg-6">                               
-                                <label for="poptimizeby-group">Optimize by:                                     
-                                    <label class="radio-inline">
-                                        <input type="radio" id="pref-optimizeby-pilotpref" value="pilot_preference" v-model="pref.optimizeby" /> Pilot Preference
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" id="pref-optimizeby-maxmhz" value="max_mhz_distance" v-model="pref.optimizeby" /> Max. MHz Distance
-                                    </label>                                                                    
-                                </label>
-                            </div>
+                                 while the mhz_distance doesn't optimize by pilot_preference as well...      
                             -->
+                            <!-- OPTIONS: optimize_by -->
+                            <div class="col col-xs-12 col-sm-4 col-md-4 col-lg-3">
+                                <label for="optimize-by-group">Optimize by:</label>                             
+                                <div id="optimize-by-group" class="form-group">                                 
+                                    <div class="radio-inline">
+                                        <input type="radio" id="prefs-optimize_by-pilotpref" value="pilot_preference" v-model="prefs.optimize_by" />Pilot Pref.
+                                    </div>
+                                    <div class="radio-inline">
+                                        <input type="radio" id="prefs-optimize_by-maxmhz" value="max_mhz_distance" v-model="prefs.optimize_by" />Max. MHz
+                                    </div>                                                                    
+                                </div>
+                            </div> 
+                            <!-- /OPTIONS: optimize_by -->
+
+                            <!-- OPTIONS: debug? -->
+                            <div class="col col-xs-12 col-sm-2 col-md-2 col-lg-1">     
+                                <label for="debug_api">Debug?:</label> 
+                                <div id="debug_api" class="form-group">              
+                                    <div id="debug_api_cb" class="checkbox-inline">
+                                        <input id="debug_api" type="checkbox" v-model="debug.is_debug_mode">Yep!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /OPTIONS: debug? -->
                         </div>
                     </div>
                 </div>
                 <!-- /Preferences Panel -->
                 
-                <p></p>
+                <div v-if="!result.hidden">
+                    <hr/>
+                    <p>
+                        <h4><span class="glyphicon glyphicon-info-sign"></span> Result:</h4>      
+                    </p>                    
+                    <textarea class="form-control" rows="10" v-model="JSON.stringify(result.data)"></textarea>
+                    <hr/>
+                </div>
+                <div v-if="!error.hidden">
+                    <hr/>
+                    <div class="alert alert-danger fade in">
+                        <span class="glyphicon glyphicon-exclamation-sign"></span> <strong>Error: </strong> {{JSON.stringify(error.data)}}
+                    </div>
+                </div>
+                <div v-if="!debug.hidden">                    
+                    <hr/>
+                    <div class="alert alert-info fade in">
+                        <span class="glyphicon glyphicon-question-sign"></span> <strong>Debug - Showing 10 First Results:</strong>
+                        <textarea class="form-control" rows="11" style="resize: none" v-model="JSON.stringify(debug.data)"></textarea>
+                    </div>                    
+                </div>
+
+                <hr/>
                 <div class="pull-right">                    
                     <button v-on:click="reset" class="btn btn-warning"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
                     <button v-on:click="addPilotInput" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add Pilot</button>
@@ -193,17 +232,12 @@
                     <button v-on:click="computeSolutions" class="btn btn-primary">Let's Fly!</button>
                 </div>   
                 
-                <div v-if="!result.hidden" class="cols-sm-4">
-                    <p></p>
-                    <hr/>
-                    <textarea class="form-control" rows="10" v-model="JSON.stringify(result.data)"></textarea>
-                </div>
+                
             </div>
 
             <!-- /accordion panel-group -->
 
             <!-- TODO:  a) add better result / error placement 
-                        c) cleanup messy vue code 
                         d) open first panel on init
                         e) fix panel heading click area
                         f) split up in vue templates?!            
@@ -221,7 +255,5 @@
         <script src="js/axios.min.js"></script>
         <script src="js/vue.min.js"></script>
         <script src="js/vue_app.js"></script>
-
-        <script src="js/vue_test.js"></script>
     </body>
 </html>
