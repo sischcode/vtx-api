@@ -105,8 +105,14 @@ const pilotInput = new Vue({
     el: '#pilots-input',
     data: {        
         pilots: [],
-        result: null,
-        error_msg: null
+        pref: {
+            mindist: 60,
+            optimizeby: 'pilot_preference'
+        },
+        result: {
+            data: null,
+            hidden: true
+        }
     },
 
     mounted() {
@@ -120,7 +126,8 @@ const pilotInput = new Vue({
     methods: {
         reset() {
             this.pilots = [mkPilot('Name-1'), mkPilot('Name-2')];
-            this.error_msg = null;
+            this.result.data = null;
+            this.result.hidden = true;
         },        
         addPilotInput() {
             if(this.pilots.length < 8) {
@@ -129,15 +136,19 @@ const pilotInput = new Vue({
             }
         },
         computeSolutions() {
-            this.error_msg = null;
             const pilotsInput = this.pilots.map(pilotToPilotReq);
             if(pilotsInput.some((e) => e === null)) {
-                this.error_msg = "One or more pilots don't have sufficient freq-config to compute a solution";
+                this.result.data = "One or more pilots don't have sufficient freq-config to compute a solution";
+                this.result.hidden = false;
                 return;
             }
 
             const postRequest = {
-                pilots: pilotsInput
+                pilots: pilotsInput,
+                options: {
+                    optimize_by: this.pref.optimizeby,
+                    min_mhz_spacing: this.pref.mindist
+                }
             };
 
             console.log(JSON.stringify(postRequest));
@@ -145,11 +156,13 @@ const pilotInput = new Vue({
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
                  .then(response => {
                      console.log(response.data);
-                     this.result = response.data;
+                     this.result.data = response.data;
+                     this.result.hidden = false;
                  })
                  .catch(error => {
-                     this.error_msg = error;
                      console.log("error", error);
+                     this.result.data = error;
+                     this.result.hidden = false;
                  });
         }
     }

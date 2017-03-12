@@ -35,13 +35,13 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">API Docs <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="#">Foo</a></li>
-                                <li><a href="#">Bar</a></li>
-                                <li><a href="#">Baz</a></li>
+                                <li><a href="#">Nope</a></li>
+                                <li><a href="#">Nothing</a></li>
+                                <li><a href="#">Not Yet</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li class="dropdown-header">External resources</li>
-                                <li><a href="#">Some link</a></li>
-                                <li><a href="#">One more separated link</a></li>
+                                <li><a href="#">...errr</a></li>
+                                <li><a href="#">maybe in the future?</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -53,68 +53,69 @@
         <!-- in theory, currently, we don't need any ids. though it looks nicer -->
         <div class="container" id="pilots-input">      
             
-            <div class="panel-group" id="pilot-accordion">            
+            <!-- accordion panel-group -->
+            <div class="panel-group" id="input-accordion">            
 
                 <!-- Pilots-Loop (build a separate panel for every pilot) -->
-                <div v-bind:id="'pilot-' +[index] +'-panel'" v-for="(pilot,index) in pilots" class="panel panel-default">
-                    <div v-bind:id="'pilot-' +[index] +'-panel-heading'" class="panel-heading">
+                <div :id="'pilot-' +[index] +'-panel'" v-for="(pilot,index) in pilots" class="panel panel-default">
+                    <div :id="'pilot-' +[index] +'-panel-heading'" class="panel-heading">
                         <h3 class="panel-title">
-                            <a v-bind:href="'#pilot-' +[index] +'-panel-collapse'" 
+                            <a :href="'#pilot-' +[index] +'-panel-collapse'" 
                                 data-toggle="collapse" 
-                                data-parent="#pilot-accordion">Pilot {{index+1}}
+                                data-parent="#input-accordion"><span class="glyphicon glyphicon-user"></span> Pilot {{index+1}}
                             </a>
                         </h3>
                     </div>
-                    <div v-bind:id="'pilot-' +[index] +'-panel-collapse'" class="panel-collapse collapse">
-                        <div v-bind:id="'pilot-' +[index] +'-panel-body'" class="panel-body">
+                    <div :id="'pilot-' +[index] +'-panel-collapse'" class="panel-collapse collapse">
+                        <div :id="'pilot-' +[index] +'-panel-body'" class="panel-body">
                             <!-- PILOT NAME AND PREF. INPUT -->                                
-                            <div v-bind:id="'pilot-' +[index] +'-name'" class="col col-xs-12 col-sm-12 col-md-12 col-lg-2">       
+                            <div :id="'pilot-' +[index] +'-name'" class="col col-xs-12 col-sm-12 col-md-12 col-lg-2">       
                                 <div class="input-group">                                
                                     <input type="text" class="form-control" v-model="pilots[index].name">
                                 </div>
                                 <div class="checkbox">
                                     <label>
                                         <!-- @click="allBandsCbToggle(index, $event)" -->
-                                        <input v-bind:id="'pilot-' +[index] +'-all-cb'" 
+                                        <input :id="'pilot-' +[index] +'-all-cb'" 
                                                type="checkbox"
                                                v-model="pilots[index].allBands"><strong>Use all Bands?</strong>
                                     </label>
                                 </div> 
                             </div>
 
-                            <!-- Bands-A-R-Loop -->                        
-                            <div v-bind:id="'pilot-' +[index] +'-band-' +band.name" 
+                            <!-- BANDS-A-R-Loop -->                        
+                            <div :id="'pilot-' +[index] +'-band-' +band.name" 
                                  v-for="(band,band_index) in pilot.bands" 
                                  class="col col-xs-12 col-sm-4 col-md-3 col-lg-2"
                                  >
                                 <!-- BAND-PANEL -->
-                                <div v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-panel'" class="panel panel-default">     
+                                <div :id="'pilot-' +[index] +'-band-' +band.name +'-panel'" class="panel panel-default">     
                                     <!-- BAND-PANEL-HEADING -->                                                           
                                     <div class="panel-heading text-left">
                                         <label>                        
                                             <!-- @click="singleBandCbToggle(index, band_index, $event)" -->
                                             <input  type="checkbox" 
                                                     :disabled="false"
-                                                    v-bind:id="'pilot-' +[index] +'-' +band.name +'-cb'"
+                                                    :id="'pilot-' +[index] +'-' +band.name +'-cb'"
                                                     v-model="pilots[index].bands[band_index].sel"> Band {{band.name}}   
                                         </label>  
                                         <label style="padding: 0px 10px;">
                                             <h5>
                                                 <span data-toggle="collapse" 
-                                                        v-bind:href="'#pilot-' +[index] +'-band-' +band.name +'-collapse-panel'" 
+                                                        :href="'#pilot-' +[index] +'-band-' +band.name +'-collapse-panel'" 
                                                         class="glyphicon glyphicon-triangle-bottom">
                                                 </span>
                                             </h5>
                                         </label>
                                     </div>
                                     <!-- /BAND-PANEL-HEADING -->
-                                    <!-- BAND-PANEL-BODY -->
-                                    <div class="collapse panel-collapse" v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-collapse-panel'">
+                                    <!-- BAND-PANEL-COLLAPSE -->                           
+                                    <div class="collapse panel-collapse" :id="'pilot-' +[index] +'-band-' +band.name +'-collapse-panel'">
+                                        <!-- BAND-PANEL-BODY -->
                                         <div class="panel-body">
-
-                                            <div class="list-group" v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-freqs'">                                                        
+                                            <div class="list-group" :id="'pilot-' +[index] +'-band-' +band.name +'-freqs'">                                                        
                                                 <!-- Band-Freq-Loop (generate Band list items) -->                            
-                                                <ul v-bind:id="'pilot-' +[index] +'-band-' +band.name +'-' +freq.name" 
+                                                <ul :id="'pilot-' +[index] +'-band-' +band.name +'-' +freq.name" 
                                                     v-for="(freq,freq_index) in band.freqs" 
                                                     class="list-group-item list-unstyled">                                                        
 
@@ -122,58 +123,105 @@
                                                         <div class="checkbox">
                                                             <label >
                                                                 <input  type="checkbox" 
-                                                                        v-bind:id="'pilot-' +[index] +'-' +freq.name +'-cb'"
+                                                                        :id="'pilot-' +[index] +'-' +freq.name +'-cb'"
                                                                         v-model="pilots[index].bands[band_index].freqs[freq_index].sel"                                                                        
                                                                         >{{freq.name}}: [{{freq.freq}}]
                                                             </label>
                                                         </div>
-                                                    </li>
-                                                    
+                                                    </li>                                                    
                                                 </ul>                            
                                                 <!-- /Band-Freq-Loop (generate Band list items) -->
                                             </div>
-
                                         </div>
+                                        <!-- /BAND-PANEL-BODY -->                           
                                     </div> 
-                                    <!-- /BAND-PANEL-BODY -->                           
+                                    <!-- /BAND-PANEL-COLLAPSE -->                           
                                 </div>
                                 <!-- /BAND-PANEL -->
                             </div>
-                            <!-- /Bands-A-R-Loop -->
+                            <!-- /BANDS-A-R-Loop -->
                         </div>
                     </div>
                 </div>
+                <!-- /Pilots-Loop (build a separate row for every pilot) -->   
+                
+                <!-- Preferences Panel -->
+                <div id="options-panel" class="panel panel-success">
+                    <div id="options-panel-heading'" class="panel-heading">
+                        <h3 class="panel-title">
+                            <a href="#options-collapse-panel" 
+                                data-toggle="collapse" 
+                                data-parent="#input-accordion"><span class="glyphicon glyphicon-cog"></span> Preferences
+                            </a>
+                        </h3>
+                    </div>
+                    <div id="options-collapse-panel" class="panel-collapse collapse">
+                        <div id="options-collapse-panel-body" class="panel-body">                           
+                            <div class="col col-xs-12 col-sm-12 col-md-6 col-lg-4">
+                                <div class="form-inline">
+                                    <div class="form-group">
+                                        <label for="pref-mindistance">Min. MHz Distance:</label>                                
+                                        <input id="pref-mindistance" type="number" class="form-control" v-model.number="pref.mindist">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- this currently doesn't make sense, since the pilot_preference automatically also maximizes mhz distance,
+                                 while the mhz_distance doesn't optimize by pilot_preference as well...                            
+                            
+                            <div class="col col-xs-12 col-sm-12 col-md-6 col-lg-6">                               
+                                <label for="poptimizeby-group">Optimize by:                                     
+                                    <label class="radio-inline">
+                                        <input type="radio" id="pref-optimizeby-pilotpref" value="pilot_preference" v-model="pref.optimizeby" /> Pilot Preference
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" id="pref-optimizeby-maxmhz" value="max_mhz_distance" v-model="pref.optimizeby" /> Max. MHz Distance
+                                    </label>                                                                    
+                                </label>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                </div>
+                <!-- /Preferences Panel -->
                 
                 <p></p>
-                <label class="pull-right">
+                <div class="pull-right">                    
                     <button v-on:click="reset" class="btn btn-warning"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
                     <button v-on:click="addPilotInput" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add Pilot</button>
-                </label>
+                </div>
                 <div>                    
-                    <button v-on:click="computeSolutions" class="btn btn-primary">Submit!</button>
+                    <button v-on:click="computeSolutions" class="btn btn-primary"><span class="glyphicon glyphicon-sunglasses"></span><strong> Let's Fly!</strong></button>
                 </div>   
-                <p>{{ result }}</p>
-                <p>{{ error_msg }}</p>
+                
+                <div v-if="!result.hidden" class="cols-sm-4">
+                    <p></p>
+                    <hr/>
+                    <textarea class="form-control" rows="10" v-model="JSON.stringify(result.data)"></textarea>
+                </div>
             </div>
-            <!-- /Pilots-Loop (build a separate row for every pilot) -->   
 
-            <!-- TODO: a) add better result / error placement b) add options! c) cleanup messy vue code -->
+            <!-- /accordion panel-group -->
 
-        </div>
+            <!-- TODO:  a) add better result / error placement 
+                        c) cleanup messy vue code 
+                        d) open first panel on init
+                        e) fix panel heading click area
+                        f) split up in vue templates?!            
+            -->
+        </div>        
 
-        
-
-        <!--<footer class="footer">
+        <footer class="footer">
             <div class="container">
-                <p class="text-muted">Place sticky footer content here.</p>
+                <p class="text-muted"></p>
             </div>
-        </footer>-->
-
+        </footer>
 
         <script src="js/jquery-3.1.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/axios.min.js"></script>
         <script src="js/vue.min.js"></script>
         <script src="js/vue_app.js"></script>
+
+        <script src="js/vue_test.js"></script>
     </body>
 </html>
