@@ -251,6 +251,7 @@ const pilotInput = new Vue({
 
             // post data to API and handle response 
             this.site.loading = true;
+            this.error.hidden = true;
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
                  .then(succ => {
                      console.log(succ.data.results);
