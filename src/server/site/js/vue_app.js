@@ -133,6 +133,40 @@ const init = () => {
     }   
 };
 
+
+Vue.component('pilot-result', {
+  props: ['pilot', 'index'],
+  template: ` <li v-id="pilot" :id="'pilot-' +index +'-config'" class="list-group-item"> 
+                <div class="row">
+                    <div class="col col-xs-12 col-sm-3 col-md-2 col-lg-2" >
+                        <h4><span class="glyphicon glyphicon-equalizer"></span>  <label class="label label-info">{{pilot.freq_id}} <span class="badge">{{pilot.freq}}</span></label></h4>
+                    </div>                    
+                    <div class="col col-xs-12 col-sm-4 col-md-4 col-lg-3 text-left">
+                        <h4><span class="glyphicon glyphicon-user"></span> <strong>{{pilot.pilot_name}}<strong></h4>
+                    </div>
+                    <div class="col col-xs-12 col-sm-5 col-md-5 col-lg-6 text-left" v-if="pilot.hints">
+                        <h4><span class="glyphicon glyphicon-random"></span>  Hints: </h4>
+                        <ul class="list-unstyled">
+                            <template v-for="hint in pilot.hints">
+                                <li><h6><strong>{{hint}}</strong></h6></li>
+                            </template>  
+                        </ul>
+                    </div>
+                </div>
+              </li>`
+});
+
+Vue.component('pilots-result', {
+  props: ['solution'],
+  template: ` <div v-id="solution" id="result-config">
+                <ul class="list-group">
+                    <template v-for="(pilot,index) in solution">
+                        <pilot-result :pilot="pilot" :index="index"></pilot-result>
+                    </template>  
+                </ul>
+              </div>`
+});
+
 const pilotInput = new Vue({
     el: '#pilots-input',
     data: {
@@ -148,7 +182,7 @@ const pilotInput = new Vue({
     },
 
     /*beforeUpdate() {
-        console.log('BEFORE UPDATE // TODO: implement logic for all-bands-check');        
+        console.log('BEFORE UPDATE');        
     },*/
 
     methods: {
