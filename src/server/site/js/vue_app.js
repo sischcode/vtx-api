@@ -213,17 +213,22 @@ const pilotInput = new Vue({
 
             // post data to API and handle response 
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
-                 .then(response => {
-                     console.log(response.data.results);
+                 .then(succ => {
+                     console.log(succ.data.results);
                      if(!this.debug.is_debug_mode) {
-                        this.showResult(response.data);
+                        this.showResult(succ.data);
                      } else {
-                        this.showDebug(response.data); 
+                        this.showDebug(succ.data); 
                      }
                  })
-                 .catch(response => {
-                     console.log("error", response.response.data.error);    // is still a JSON at this point
-                     this.showError(response.response.data.error[0]);
+                 .catch(err => {
+                     if(!err.response) {
+                        console.log("network error");    
+                        this.showError("network error. can't call API");
+                     } else {
+                        console.log("error", err.response.data.error);    // is still a JSON at this point
+                        this.showError(err.response.data.error[0]);
+                     }
                  });
         }
     }
