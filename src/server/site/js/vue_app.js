@@ -168,7 +168,7 @@ Vue.component('pilots-result', {
 });
 
 const pilotInput = new Vue({
-    el: '#pilots-input',
+    el: '#app',
     data: {
         pilots: [],
         prefs: {},

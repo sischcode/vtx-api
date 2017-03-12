@@ -51,12 +51,9 @@
         </nav>        
 
         <!-- in theory, currently, we don't need any ids. though it looks nicer -->
-        <div class="container" id="pilots-input">
-            
-            
+        <div class="container" id="app">
             <!-- accordion panel-group -->
             <div class="panel-group" id="input-accordion">            
-
                 <!-- Pilots-Loop (build a separate panel for every pilot) -->
                 <div :id="'pilot-' +[index] +'-panel'" v-for="(pilot,index) in pilots" class="panel panel-default">
                     <div :id="'pilot-' +[index] +'-panel-heading'" class="panel-heading">
