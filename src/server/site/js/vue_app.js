@@ -249,28 +249,41 @@ const pilotInput = new Vue({
 
             console.log(JSON.stringify(postRequest));
 
+            // TODO: tunnel HTTP 400 info back correctly
+            // TODO: check for equal frequencies...
+
             // post data to API and handle response 
             this.site.loading = true;
             this.error.hidden = true;
             axios.post('/api/calc/optimizepilotfreqs', postRequest)
                  .then(succ => {
-                     console.log(succ.data.results);
-                     if(!this.debug.is_debug_mode) {
-                        this.showResult(succ.data);
-                     } else {
-                        this.showDebug(succ.data); 
-                     }
+                     // in any case. disable loading screen
                      this.site.loading = false;
+                     // no result case                     
+                     if(succ.data.results.length === 0) {
+                         if(succ.data.hints !== 0) {
+                             return this.showError("no solution found. " +succ.data.hints.reduce((a,b) => a +'; ' +b)); 
+                         } else {
+                             return this.showError("...oops something went wrong. please try again!"); 
+                         }
+                     }
+                     // result debug case
+                     if(!this.debug.is_debug_mode) {
+                        return this.showResult(succ.data);
+                     } 
+                     // result normal case
+                     return this.showDebug(succ.data); 
                  })
                  .catch(err => {
-                     if(!err.response) {
-                        console.log("network error");    
-                        this.showError("network error. can't call API");
-                     } else {
-                        console.log("error", err.response.data.error);    // is still a JSON at this point
-                        this.showError(err.response.data.error[0]);
-                     }
+                     console.log("err:", err);
+                     // in any case. disable loading screen
                      this.site.loading = false;
+                     if(!err.response) {
+                         console.log("network error");    
+                         return this.showError("network error. can't call API");
+                     } 
+                     console.log("error:", err.response.data.error);    // is still a JSON at this point
+                     return this.showError(err.response.data.error);
                  });
         }
     }

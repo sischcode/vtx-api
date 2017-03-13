@@ -9,7 +9,6 @@
         <meta name="author" content="">
         <title>FreqenzR - The API that lets people fly together</title> <!-- Version 0.1.0 -->
         <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/ring-loading.css">
         <link rel="stylesheet" href="css/site.css">
     </head>
     <body>
@@ -53,6 +52,12 @@
 
         <!-- in theory, currently, we don't need any ids. though it looks nicer -->
         <div class="container" id="app">
+            <!-- HINT -->
+            <div class="alert alert-info fade in">
+                <strong>Hint!</strong> If all bands are fine for you, simply check 'Use all bands'. Otherwise try being as precise as possible!
+                <a href="#" class="close" data-dismiss="alert" aria-label="close"><span class="glyphicon glyphicon-remove"></span></a>
+            </div>
+
             <!-- accordion panel-group -->
             <div class="panel-group" id="input-accordion" :disabled="site.loading">            
                 <!-- Pilots-Loop (build a separate panel for every pilot) -->
