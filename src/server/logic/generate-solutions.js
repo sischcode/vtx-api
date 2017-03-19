@@ -3,7 +3,7 @@ const Combinatorics = require('js-combinatorics');
 
 const FrequencyUtils = require('./classes/FrequencyUtils');
 const FpvPilot = require('./classes/FpvPilot');
-const { generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint } = require('./generate-general-solution-pool');
+const { getSolutionsForConstraints } = require('./generate-general-solution-pool'); // instead of "generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint"
 
 
 const OPTIMIZEBY_PILOT_PREFERENCE = "pilot_preference";
@@ -17,7 +17,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
             FrequencyUtils.mkFrequencyObjectArrFromBandIdArr(
                 FpvPilot.getPossibleBandPoolFromPilots(pilots)));
 
-    
+
     // =========================================================================================
     // = Prelimiary step: Build up general solutions, based on the basic constraints.          =
     // =                  We will use these as "blueprints", and try to "implement" them in    =
@@ -29,7 +29,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
     // - minMhzDistance 
     // - and available frequencies 
     const solutionBlueprints 
-        = generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint(pilots.length, minMhzDistance, baseFreqArr);
+        = getSolutionsForConstraints(pilots.length, minMhzDistance, baseFreqArr);
     
     // =========================================================================================
     // == Main step: Try to build all "implementations" of a given blueprint (gen. solution) ===
@@ -38,8 +38,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
     // blueprint = one combination of frequencies that meets the requirements for #pilots, minMhzDistance and available frequencies 
 
     // One blueprint (=general solution) at a time...
-    const unsortedSolutionImplementations = solutionBlueprints.map((solutionBlueprint) => {        
-
+    const nestedUnsortedSolutionImplementations = solutionBlueprints.map((solutionBlueprint) => {
         // In essence what we're trying to do here is, try if we can
         // "build" the suggested solution (=blueprint) based on the
         // the pilots frequencies. 
@@ -52,18 +51,16 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
             // Resulting in a nested array of "PilotFrequencyObject"s.
 
             // get the weight of particular frequency(!) from pilot (if possible)
-            return FpvPilot.getWeightFreqArrForFreqForPilots(blueprintFreqObj.freq, pilots)
+            return FpvPilot.getWeightFreqArrForFreqForPilots(blueprintFreqObj.freq, pilots) //may contain expensive operations as well
                            .filter((pFreqObj) => pFreqObj !== undefined);            
         });
 
         // Each pilots name must at least appear once in any of the arrays to 
         // construct a feasible solution
         const distinctPilots =
-             _.uniq(currBlueprintTupleBase.reduce((a,b) => {
-                                               return a.concat(b);
-                                           },[])
-                                           .filter((pFreqObj) => pFreqObj != undefined)
-                                           .map((pFreqObj) => pFreqObj.pilotName)
+             _.uniq(_.flatten(currBlueprintTupleBase)
+                     .filter((pFreqObj) => pFreqObj != undefined)
+                     .map((pFreqObj) => pFreqObj.pilotName)
             );
 
         // = not feasible
@@ -80,7 +77,10 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         // I.e. we build up the frequency-list of the "blueprint" all the time, but with different 
         // pilot-combinations. (since many pilots can potentially use a certain frequency of a "solution")
         // ===============================================================================================
-        // NOTE: We have a lot of improvement potential here, as we don't have to build up the whole CP.
+        // NOTE: We have a lot of improvement potential here, as we don't have to build up the whole CP.        
+
+        //console.log("feasible blueprint:",currBlueprintTupleBase);
+
         const blueprintImplementationsCP = Combinatorics.cartesianProduct(...currBlueprintTupleBase).toArray();
         
         // find valid combinations/solution-blueprint-implementations (based on unique #pilots)
@@ -88,17 +88,16 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
             const uniqueNames = _.uniq(innerblueprint.map((pFreqObj) => pFreqObj.pilotName));
             return uniqueNames.length === pilots.length;                          
         });
-
+        
         return feasibleBlueprintImplementations;
-    })
-    // flatten
-    .reduce((a,b) => {
-        return a.concat(b);
-    },[]);
-
+    });
+    
+    // the lodash flatten seems to be a bit faster than doing it by hand with reduce and concat
+    const flatUnordSolImpls = _.flatten(nestedUnsortedSolutionImplementations)
+    
     return {
         solutionBlueprints: solutionBlueprints,
-        solutions: unsortedSolutionImplementations
+        solutions: flatUnordSolImpls
     };
 }
 
@@ -218,34 +217,25 @@ module.exports = {
     VALID_OPTIMIZEBY_VALUES
 }
 
+// TODO: - optimize by weight and distance
+//       - add multiple fitness values to solutions
 
 /*
 const pilots = [
-    new FpvPilot("name1", "craft-01", "ET25R", ["A", "B", "E", "F", "R"], ["A","R"], ["A1", "R1"]),
+    new FpvPilot("name1", "craft-01", null, null, ["A"]),
     new FpvPilot("name2", "craft-02", null, null, ["B"], ["B1"]),
-    new FpvPilot("name3", "craft-03", null, ["A", "B", "E", "F", "R"], ["F"], ["B5"]),
-    new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"], ["R"], ["R6"])
+    new FpvPilot("name3", "craft-03", null, ["A", "B", "E", "F", "R"], ["E"], ["E5"]),
+    new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"], ["R"])
 ];
-*/
 
-/*
+
 // by pilots' preferences
-const result = computeAndSortSolutions(pilots, 60);
-console.log("num solution blueprints (= valid combinations): " +result.solutionBlueprints.length);
-console.log("total solutions: " +result.solutions.length);
-console.log("Best: Fitness:  " +evaluateFitnessByPilotPreferences(result.solutions[0]));
-console.log("Best: Solution: ",result.solutions[0]);
-console.log("Worst: Fitness:  " +evaluateFitnessByPilotPreferences(result.solutions[result.solutions.length-1]));
-console.log("Worst: Solution: ",result.solutions[result.solutions.length-1]);
-*/
+const from = Date.now();
+const result = computeSortAndEnrichSolutions(pilots, 60);
+console.log("sec:", (Date.now() - from)/1000);
 
-/* 
-// by max mhz distance
-const result = computeAndSortSolutions(pilots, 60, "maxMhzDistance");
-console.log("num solution blueprints (= valid combinations): " +result.solutionBlueprints.length);
-console.log("total solutions: " +result.solutions.length);
-console.log("Best: Fitness:  " +evaluateFitnessByFreqDiff(result.solutions[0]));
-console.log("Best: Solution: ",result.solutions[0]);
-console.log("Worst: Fitness:  " +evaluateFitnessByFreqDiff(result.solutions[result.solutions.length-1]));
-console.log("Worst: Solution: ",result.solutions[result.solutions.length-1]);
+console.log("num solution blueprints (= valid combinations): " +result.solution_blueprints.length);
+console.log("stats: ", result.statistics);
+console.log("Best: Solution: ",result.solutions_with_fitness[0]);
+console.log("Worst: Solution: ",result.solutions_with_fitness[result.solutions_with_fitness.length-1]);
 */
