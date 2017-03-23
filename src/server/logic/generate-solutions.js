@@ -80,7 +80,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         // NOTE: We have a lot of improvement potential here, as we don't have to build up the whole CP.        
 
         //console.log("feasible blueprint:",currBlueprintTupleBase);
-
+        // TODO: replace this part with something more intelligent
         const blueprintImplementationsCP = Combinatorics.cartesianProduct(...currBlueprintTupleBase).toArray();
         
         // find valid combinations/solution-blueprint-implementations (based on unique #pilots)
@@ -219,6 +219,7 @@ module.exports = {
 
 // TODO: - optimize by weight and distance
 //       - add multiple fitness values to solutions
+//       - add constraints here as well!
 
 /*
 const pilots = [

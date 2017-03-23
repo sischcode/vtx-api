@@ -52,8 +52,8 @@ const maxFreqConstraint = (maxFreq) => {
 }
 
 /**
- * Generates a list "flattened" sub trees for a given pool of frequencies and constraints. 
- * Currently the constrains are a minimal gap between frequencies and a min/max frequency.
+ * Generates a list "flattened" one-leve-deep sub trees for a given pool of frequencies and constraints. 
+ * Currently the default constrains are a minimal gap between frequencies and a min/max frequency.
  * i.e. minGap=3; pool=[3,5,8,11] will result in [[3,[8,11]], [5,[8,11]], [8,[11]], [11,[]]]
  * This actually is a representation for the trees:
  * 1)     3
@@ -82,7 +82,7 @@ const genFlatSubtreesFromConstraintFreqPool
         ]
     ) => {
 
-    // pool based on frequency constraints
+    // create initial pool based on frequency constraints
     const allowedFreqPool = pool.filter((fObj) => {
         return constraints.every(constraint => {
             return constraint(fObj);
@@ -176,7 +176,8 @@ const getSolutionsForConstraints = (numPilots = 2,
                                     ordFreqObjPool = DEFAULT_FREQ_POOL_ALL5P8,
                                     minFreq = ordFreqObjPool[0].freq, 
                                     maxFreq = ordFreqObjPool[ordFreqObjPool.length-1].freq) => {
-        
+
+    // applying minMhzDistance and min/max-frequency constraints on this    
     const flatSubTrees 
         = genFlatSubtreesFromConstraintFreqPool(minMhzDistance, 
                                                 ordFreqObjPool,
@@ -184,6 +185,7 @@ const getSolutionsForConstraints = (numPilots = 2,
 
     const solutionPaths = evaluatePathsFromFlatSubtrees(flatSubTrees);
 
+    // applying the numPilots constraint on this 
     const solutionPathsMinElems = solutionPaths.filter((path) => path.length == numPilots);
     
     return _.uniqBy(solutionPathsMinElems, FrequencyObject.getIdentOfObjArr);
