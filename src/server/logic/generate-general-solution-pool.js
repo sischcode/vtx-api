@@ -136,7 +136,7 @@ const genFlatSubtreesFromConstraintFreqPool
  *        /
  *       11
  *
- *       Paths: [[3,8], [3,8,11], [3,11]]
+ *       Paths: [[5,8], [3,8,11], [3,11]]
  *
  * 3)
  *       8
