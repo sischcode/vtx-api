@@ -156,14 +156,18 @@ const evaluateFitnessByPilotPreferences = (solution) => {
     },0);
 };
 
+
+
+
+
 /**
- * Combining it all....
- * param "optimizeBy" = "pilot_preference" | "max_mhz_distance"
+ * a) enrich with fitness value, based on fitness-function choice
+ * b) sort by fitness value (sortOrder as given)
+ * 
+ * @param {*} solutionPool 
+ * @param {*} fnFitness 
+ * @param {*} order 
  */
-
-
-// a) enrich with fitness value, based on fitness-function choice
-// b) sort by fitness value (sortOrder as given)
 const addAndSortByFitnessFn =  (solutionPool, fnFitness, order="asc") => {
     let sortedAsc = solutionPool.map((solution) => {
         return {
@@ -182,7 +186,10 @@ const addAndSortByFitnessFn =  (solutionPool, fnFitness, order="asc") => {
 }
 
 
-// pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc"
+/**
+ * 
+ * @param {*} args Object of: pilots, minMhzDistance, minFrequency, maxFrequency, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc"
+ */
 const computeSortAndEnrichSolutions = (args) => {
     // defaulting optional, but needed args
     if(!args.optimizeBy) {
