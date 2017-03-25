@@ -7,9 +7,10 @@ const DEFAULT_FREQ_POOL_ALL5P8 = FrequencyUtils.getAll5P8FreqsAsOrderedFreqObjAr
 
 /**
  * Split a pool of frequencies in head and tail, by the first frequency in the pool and the min-gap between frequencies:
- * - head = starting point (pool[0])
- * - tail = list of freqs with at least "minGap" distance to the head frequency
- * - i.e. minGap=3 and pool=[3,5,8,11] will result in [3,[8,11]]
+ * a) head = starting point (pool[0])
+ * b) tail = list of freqs with at least "minGap" distance to the head frequency
+ * 
+ * Example: minGap=3 and pool=[3,5,8,11] will result in [3,[8,11]]
  * 
  * This actually is a representation for the tree:
  *      3
@@ -52,10 +53,16 @@ const maxFreqConstraint = (maxFreq) => {
 }
 
 /**
- * Generates a list "flattened" one-leve-deep sub trees for a given pool of frequencies and constraints. 
+ * Generates a list of "flattened" one-level-deep sub trees for a given pool of frequencies and constraints. 
  * Currently the default constrains are a minimal gap between frequencies and a min/max frequency.
- * i.e. minGap=3; pool=[3,5,8,11] will result in [[3,[8,11]], [5,[8,11]], [8,[11]], [11,[]]]
+ * (This is done by simply shifting the input and calling the function 'genDistConstraintFlatSubtree')
+ * 
+ * Example: 
+ * -------
+ * minGap=3; pool=[3,5,8,11] will result in [[3,[8,11]], [5,[8,11]], [8,[11]], [11,[]]]
+ * 
  * This actually is a representation for the trees:
+ *
  * 1)     3
  *       / \
  *      8  11
@@ -67,6 +74,9 @@ const maxFreqConstraint = (maxFreq) => {
  * 3) 8
  *    |
  *    11
+ * 
+ * 4) 11
+ * 
  * @param {number} minGap minimal mhz distance between frequencies in the pool
  * @param {Array.<{freq: number}>} pool asc-ordered, constrained (min/max-wise) pool of frequencies
  * @param {*} WTF man. How do I document an array of functions here, and also that these functions return a boolean!?
@@ -105,39 +115,81 @@ const genFlatSubtreesFromConstraintFreqPool
  * (in flattened, one-level-deep form) that we get as input.
  * The input is (usually) already constraint.
  * 
+ * Example:
+ * ========
+ * Given the input of: [ [3,[8,11]], [5,[8,11]], [8,[11]], [11, []] ], the 
+ * resulting trees will be: 
+ *
+ * 1)
+ *            3
+ *          /   \
+ *         8    11
+ *        /
+ *       11
+ *                   
+ *       Paths: [[3,8], [3,8,11], [3,11]]
+ *
+ * 2)
+ *            5
+ *          /   \
+ *         8    11
+ *        /
+ *       11
+ *
+ *       Paths: [[3,8], [3,8,11], [3,11]]
+ *
+ * 3)
+ *       8
+ *       |
+ *       11
+ *
+ *       Paths: [[8,11]]
+ * 
+ * Since we're only interested in the paths and not from which tree a path
+ * stems from, it's reduced into on array of paths. So, the result will be:
+ * 
+ *   [[3,8], [3,8,11], [3,11],
+ *    [5,8], [5,8,11], [5,11],
+ *    [8,11]]
+ * 
  * @param {*} TODO
  * @returns {Array.<{freq: number}>} An array of all solutions (i.e. paths)
  */
 const evaluatePathsFromFlatSubtrees = (flatSubtreesArr) => {
-    // rec.-function to build up one(!) tree, or to be more specific, its paths'.
-    // (though it is not completely functional!)
-    // 
-    // Example:
-    // ========
-    // Given the input of: [ [3,[8,11]], [5,[8,11]], [8,[11]], [11, []] ] and the 
-    // first element ([3,[8,11]]) as a starting point, we will construct the tree:
-    //                        3
-    //                      /   \
-    //                     8    11
-    //                    /
-    //                   11
-    // The paths' of this tree would be: [[3,8],[3,8,11],[3,11]]
-    // 
-    // Note: missing sub-paths, like i.e. [8,11] will be constructed when 
-    //       constructing the tree for starting point with root-element of "8".
+    /**
+     * rec.-function to build up one(!) tree, or to be more specific, its paths'.
+     * (though it is not completely functional!)
+     *
+     * Example:
+     * --------
+     * Given the input of: [ [3,[8,11]], [5,[8,11]], [8,[11]], [11, []] ] and the 
+     * first element ([3,[8,11]]) as a starting point, we will construct the tree:
+     *            3
+     *          /   \
+     *         8    11
+     *        /
+     *       11
+     * The paths' of this tree would be: [[3,8],[3,8,11],[3,11]]
+     * 
+     * Note: missing sub-paths, like i.e. [8,11] will be constructed when 
+     *       constructing the tree for starting point with root-element of "8".
+     * 
+     * @param {*} root a single root node. i.e. 3
+     * @param {*} leafs an array containing the child elements in a flat array. i.e. [8,11]
+     * @param {*} lookup the complete flattened trees. i.e. [ [3,[8,11]], [5,[8,11]], [8,[11]], [11, []] ]
+     * @param {*} path the path we build up so far, for this walk
+     * @param {*} paths all paths we've found
+     */
     const buildTreePathsRec = (root, leafs, lookup, path, paths) => {        
-        //console.log("root:", root);
-        //console.log("leafs:", leafs);
         path.push(root);
+        // we're only interested in paths with more than one node involved
         if(path.length >= 2) {
             paths.push(path);
         }
         if(leafs.length === 0) {
-            //console.log("__paths:", paths);
             return paths;
         }
         leafs.forEach(leaf => {
-            //console.log("_leaf:", leaf);
             const [nHead, nTail] = lookup.find(e => e[0].freq === leaf.freq);
             buildTreePathsRec(nHead, nTail, flatSubtreesArr, [].concat(path), paths);
         });
@@ -146,14 +198,6 @@ const evaluatePathsFromFlatSubtrees = (flatSubtreesArr) => {
 
     // concatenate all paths from all trees into one array of paths
     // by doing so, we generate an array that contains all paths of all trees.
-    // 
-    // Example:
-    // ========
-    // Given the input of: [ [3,[8,11]], [5,[8,11]], [8,[11]], [11, []] ], the 
-    // result will be:
-    // [[3,8], [3,8,11], [3,11],
-    //  [5,8], [5,8,11], [5,11],
-    //  [8,11]]
     return flatSubtreesArr.reduce( (combPaths, treeStart) => {
         // if the paths' of all sub trees should be in a separate array, just
         // make a "combPaths.push()" instead of a concat.        
@@ -198,37 +242,20 @@ module.exports = {
 
 
 /*
-const min = 3;
+const minDistance = 3;
 const sample = [ {freq: 3, ident: '3'}, {freq: 5, ident: '5'}, {freq: 8, ident: '8'}, {freq: 11, ident: '11'}];
 
-console.log("minimal sample input: ", sample);
+console.log("minimal sample input:\n ", sample);
 console.log("----------------------------------");
 
-const s1 = genDistConstraintFlatSubtree(min, sample);
-console.log("single split:", s1);
+console.log("single split:\n", genDistConstraintFlatSubtree(minDistance, sample));
 console.log("----------------------------------");
 
-const s2 = genFlatSubtreesFromConstraintFreqPool(min, sample);
-console.log("multiple split:", s2);
+console.log("multiple split:\n", genFlatSubtreesFromConstraintFreqPool(minDistance, sample));
 console.log("----------------------------------");
 
-console.log("possible combinations:", evaluatePathsFromFlatSubtrees(genFlatSubtreesFromConstraintFreqPool(min, sample)));
+console.log("possible combinations:\n", evaluatePathsFromFlatSubtrees(genFlatSubtreesFromConstraintFreqPool(minDistance, sample)));
 console.log("----------------------------------");
 
-console.log("solutions with solution-array min-size 2: ", getSolutionsForConstraints(2,3,sample));
-*/
-
-
-
-/*
-console.log(getSolutionsForConstraints(4,60));
-console.log(getSolutionsForConstraints(4,60).length);
-
-console.log(getSolutionsForConstraints(4,60)[0]);
-console.log("----------------------------------");
-console.log(getSolutionsForConstraints(4,60)[1]);
-console.log("----------------------------------");
-console.log(getSolutionsForConstraints(4,60)[99]);
-console.log("----------------------------------");
-console.log(getSolutionsForConstraints(4,60)[999]);
+console.log("solutions with solution-array min-size 3:\n", getSolutionsForConstraints(3,3,sample));
 */

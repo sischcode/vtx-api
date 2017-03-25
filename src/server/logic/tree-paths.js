@@ -1,44 +1,78 @@
 const _ = require('lodash');
+const Combinatorics = require('js-combinatorics');
 
-const sample1 = [
-    ['10A', '10B'], ['20C','20D'], ['30E', '30F']
-];
-
-const sample = [
-    [{freq: 10, name: 'A'}, {freq: 10, name: 'B'}],
-    [{freq: 20, name: 'C'}, {freq: 20, name: 'D'}], 
-    [{freq: 30, name: 'E'}]
-];
-
-//console.log(mk(sample1)[0]);
-
-// pfo1Arr = [10A,20C]
-// pfo2Arr = [30E,30F]
-// result should be: [[10A,20C,30E], [10A,20C,30F]]
-const mkCombOfFirstArrBasedOnSecArr = (pfoArr1, pfoArr2) => {    
-    return pfoArr2.map(pfo2Elem => {
-        // if pfoArr1 doesnt contain the name of pfo2Elem, then concat        
-        return pfoArr1.concat(pfo2Elem);        
+/**
+ * This is a bit like a cartesian product, but with the difference, that the result
+ * is not return as one set (array) of combinations.
+ * Instead we build multiple arrays, based on the # of elements in the first array.
+ * (We kind of treat the elements in the first array as the root elements of multiple
+ * trees.)
+ * 
+ * Example:
+ * --------
+ * rootElems = ['10A','10B', '10F']
+ * leafElems = ['20C', '20D']
+ * return result: [ [[ '10A', '20C' ], [ '10A', '20D' ]],
+ *                  [[ '10B', '20C' ], [ '10B', '20D' ]],
+ *                  [[ '10F', '20C' ], [ '10F', '20D' ]] ]
+ * 
+ * @param {Array.<*>} rootElems 
+ * @param {Array.<*>} leafElems 
+ */
+const mkCPOfTwoArrsWConstraints = (rootElems, leafElems) => {
+    return rootElems.map(e => {
+        return generateSetsFrom([e],leafElems);
     });
 };
-//console.log(mkCombOfFirstArrBasedOnSecArr(['10A','20C'], ['30E', '30F']));
-//console.log(mkCombOfFirstArrBasedOnSecArr([], ['10A']));
+//console.log(mkCPOfTwoArrsWConstraints(['10A','10B', '10F'], ['20C', '20D']));
 
-// Sort of like a cartesian product
-// ================================
-// pfo1Arr = [10A,10B]
-// pfo2Arr = [20C,20D]
-// result should be:
-//  [
-//      [[10A,20C],[10A,20D]], 
-//      [[10B,20C],[10B,20D]]
-//  ]
-const mkCPOfTwoArrsWConstraints = (pfoArr1, pfoArr2) => {
-    return pfoArr1.map(e => {
-        return mkCombOfFirstArrBasedOnSecArr([e],pfoArr2);
-    });
+
+/**
+ * Returns true if the element (identified by its name) isn't already in the array
+ * @param {Array.<*>} arr 
+ * @param {*} elem 
+ */
+const elemIsNotContainedIn = (arr, elem) => {
+    return !arr.find(e => e.pilotName === elem.pilotName);
 };
-//console.log(mkCPOfTwoArrsWConstraints(['10A','10B'], ['20C', '20D']));
+
+/**
+ * "Appends"" an element to the array if the constraint is passed, otherwise the original array is returned.
+ * (A new array is returned, the original array is NOT mutated)
+ * @param {Array.<*>} arr the array to "append" to
+ * @param {*} elem the element to "append" to the array, if the constraint is passed
+ * @param {*} fnConstraint the constraint the element has to pass, to be added to the array
+ */
+const appendIf = (arr, elem, fnConstraint = () => true) => {    
+    if(fnConstraint(arr,elem)) {
+        return arr.concat(elem);
+    }
+    return arr;
+};
+//console.log(appendIf( [{freq: 10, pilotName: 'A'}, {freq: 10, pilotName: 'B'}], {freq: 20, pilotName: 'A'}, elemIsNotContainedInArr ) );
+
+
+/**
+ * Example:
+ * --------
+ * initialSet = [10A,20C]; combSetElems = [30E,30F]; returned result: [[10A,20C,30E], [10A,20C,30F]]
+ * 
+ * This is like doing a union (∪) operation for every element in the "combSetElems" and the original "initialSet".
+ * i.e. 1) {10A,20C} ∪ {30E} = {10A,20C,30E}
+ *      2) {10A,20C} ∪ {30F} = {10A,20C,30F}
+ *
+ * (Technically it's more a "union all", since this could hold duplicates as of the current implementation)
+ * 
+ * @param {Array.<*>} initialSet
+ * @param {Array.<*>} combSetElems 
+ * @param {*} fnConstraint constraint function 
+ * @returns {Array.<{Array.<*>}>}
+ */
+const generateSetsFrom = (initialSet, combSetElems, fnConstraint = elemIsNotContainedIn) => {    
+    return combSetElems.map(combSetElem => {
+        return appendIf(initialSet, combSetElem, fnConstraint);
+    }).filter(e => e.length > initialSet.length);
+};
 
 
 // i.e. base = [[10A,10B],[20C,20D],[30E,30F]]
@@ -55,13 +89,13 @@ const mk2 = (base) => {
         const innerResult = cTreeBase.reduce( (res2,elem) => {    // elem is an array of starting points!
             if(res2.length === 0) {
                 // 0) res2 = []; elem = [10A] --(new res2) --> [[10A]]               
-                return mkCombOfFirstArrBasedOnSecArr(res2, elem);
+                return generateSetsFrom(res2, elem);
             }
 
             // 1) res2 = [[10A]] + elem = [20C,20D] --(new res2) --> [[10A,20C],[10A,20D]]            
             res2 = _.flatten(res2.reduce((res3, elemInner) => {
                 // 1.1) elemInner = [10A] + elem = [20C,20D] --(new res2) --> [[10A,20C],[10A,20D]]
-                res3.push(mkCombOfFirstArrBasedOnSecArr(elemInner, elem));
+                res3.push(generateSetsFrom(elemInner, elem));
                 return res3;
             },[]));
 
@@ -74,4 +108,19 @@ const mk2 = (base) => {
     },[]) );
 };
 
-console.log(mk2(sample1));
+module.exports = {
+    mk2
+};
+
+/*
+const sample = [
+    [{freq: 10, pilotName: 'A'}, {freq: 10, pilotName: 'B'}],
+    [{freq: 20, pilotName: 'C'}], 
+    [{freq: 30, pilotName: 'B'}, {freq: 30, pilotName: 'F'}]
+];
+
+
+console.log(mk2(sample));
+console.log("----------");
+console.log(Combinatorics.cartesianProduct(...sample).toArray());
+*/

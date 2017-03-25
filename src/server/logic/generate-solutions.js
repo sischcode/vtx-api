@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const Combinatorics = require('js-combinatorics');
 
+const {mk2} = require('./tree-paths');
 const FrequencyUtils = require('./classes/FrequencyUtils');
 const FpvPilot = require('./classes/FpvPilot');
 const { getSolutionsForConstraints } = require('./generate-general-solution-pool'); // instead of "generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint"
@@ -28,6 +29,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
     // - #pilots
     // - minMhzDistance 
     // - and available frequencies 
+    // (this operation is very fast. It takes only about 50ms for full set of all general solutions)
     const solutionBlueprints 
         = getSolutionsForConstraints(pilots.length, minMhzDistance, baseFreqArr);
     
@@ -72,24 +74,25 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         // based on the weighted arrays.
         // Also mind, that the nested arrays in currBlueprintTupleBase are sorted by pilot name!
         
-        // Create tuples (cartesian product...the easy and inefficient way).
+        // Create sets... (cartesian product...the easy and inefficient way).
         // This means, we build up ALL combinations that could (at least partially) "implement" the proposed "blueprint" (solution).
         // I.e. we build up the frequency-list of the "blueprint" all the time, but with different 
         // pilot-combinations. (since many pilots can potentially use a certain frequency of a "solution")
         // ===============================================================================================
-        // NOTE: We have a lot of improvement potential here, as we don't have to build up the whole CP.        
+        //console.log("feasible blueprint:", currBlueprintTupleBase);        
 
-        //console.log("feasible blueprint:",currBlueprintTupleBase);
-        // TODO: replace this part with something more intelligent
+        /* Older, less efficient, but also far less complicated...
+
         const blueprintImplementationsCP = Combinatorics.cartesianProduct(...currBlueprintTupleBase).toArray();
-        
         // find valid combinations/solution-blueprint-implementations (based on unique #pilots)
         const feasibleBlueprintImplementations = blueprintImplementationsCP.filter((innerblueprint) => {
             const uniqueNames = _.uniq(innerblueprint.map((pFreqObj) => pFreqObj.pilotName));
             return uniqueNames.length === pilots.length;                          
         });
-        
         return feasibleBlueprintImplementations;
+        */
+        
+        return mk2(currBlueprintTupleBase);
     });
     
     // the lodash flatten seems to be a bit faster than doing it by hand with reduce and concat
@@ -221,18 +224,27 @@ module.exports = {
 //       - add multiple fitness values to solutions
 //       - add constraints here as well!
 
-/*
-const pilots = [
+
+/*const pilots = [
     new FpvPilot("name1", "craft-01", null, null, ["A"]),
     new FpvPilot("name2", "craft-02", null, null, ["B"], ["B1"]),
     new FpvPilot("name3", "craft-03", null, ["A", "B", "E", "F", "R"], ["E"], ["E5"]),
     new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"], ["R"])
+];*/
+
+/* ...results in a cartesian product of all, so, this stresses the algorithm the most
+const pilots = [
+    new FpvPilot("name1", "craft-01", null, ["A", "B", "E", "F", "R"]),
+    new FpvPilot("name2", "craft-02", null, ["A", "B", "E", "F", "R"]),
+    new FpvPilot("name3", "craft-03", null, ["A", "B", "E", "F", "R"]),
+    new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"])
 ];
+*/
 
-
+/*
 // by pilots' preferences
 const from = Date.now();
-const result = computeSortAndEnrichSolutions(pilots, 60);
+const result = computeSortAndEnrichSolutions(pilots, 40);
 console.log("sec:", (Date.now() - from)/1000);
 
 console.log("num solution blueprints (= valid combinations): " +result.solution_blueprints.length);
