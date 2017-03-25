@@ -78,7 +78,7 @@ class FpvPilot {
     /**
      * return a "PilotFrequencyObject" for a frequency
      */
-    getWeightForFreq(freq) {
+    getPilotFrequencyObjectForFreq(freq) {
         return this.getDedupedWeightedPilotFreqObjArr().find((weightedFreqObj) => {
             return weightedFreqObj.freq === freq;
         });
@@ -132,8 +132,8 @@ class FpvPilot {
     /**
      * returns an array of "PilotFrequencyObject"s
      */
-    static getWeightFreqArrForFreqForPilots(freq, pilots) {
-        return pilots.map((pilot) => pilot.getWeightForFreq(freq));
+    static getPilotFrequencyObjectsForFreq(freq, pilots) {
+        return pilots.map((pilot) => pilot.getPilotFrequencyObjectForFreq(freq));
     };
 }
 

@@ -53,7 +53,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
             // Resulting in a nested array of "PilotFrequencyObject"s.
 
             // get the weight of particular frequency(!) from pilot (if possible)
-            return FpvPilot.getWeightFreqArrForFreqForPilots(blueprintFreqObj.freq, pilots) //may contain expensive operations as well
+            return FpvPilot.getPilotFrequencyObjectsForFreq(blueprintFreqObj.freq, pilots) //may contain expensive operations as well
                            .filter((pFreqObj) => pFreqObj !== undefined);            
         });
 
