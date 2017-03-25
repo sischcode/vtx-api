@@ -1,25 +1,25 @@
 const _ = require('lodash');
 const Combinatorics = require('js-combinatorics');
 
-const {computePathsForTrees} = require('./tree-paths');
+const {computePathsForTrees} = require('./tree-paths'); // as an alternative to the CP function of js-combinatorics
 const FrequencyUtils = require('./classes/FrequencyUtils');
 const FpvPilot = require('./classes/FpvPilot');
-const { getSolutionsForConstraints } = require('./generate-general-solution-pool'); // instead of "generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint"
+const {getSolutionsForConstraints} = require('./generate-general-solution-pool'); 
 
 
 const OPTIMIZEBY_PILOT_PREFERENCE = "pilot_preference";
 const OPTIMIZEBY_MAX_MHZ_DISTANCE = "max_mhz_distance";
 const VALID_OPTIMIZEBY_VALUES = [OPTIMIZEBY_PILOT_PREFERENCE, OPTIMIZEBY_MAX_MHZ_DISTANCE];
 
-
 /**
+ * Compute feasible solutions for the given constraints.
  * 
- * @param {*} pilots 
- * @param {*} minMhzDistance 
- * @param {*} optMinFreq 
- * @param {*} optMaxFreq 
+ * @param {Array.<FpvPilot>} pilots The pilots input. What frequencies are available and what are the preferred ones. (aka pilots' constraints)
+ * @param {number} minMhzDistance The minimal gap that must be between any two frequencies.
+ * @param {number} minFrequency (optional) The minimal frequency
+ * @param {number} maxFrequency (optional) The maximal frequency
  */
-const computeFeasibleSolutions = (pilots, minMhzDistance, optMinFreq, optMaxFreq) => {
+const computeFeasibleSolutions = (pilots, minMhzDistance, minFrequency, maxFrequency) => {
 
     // based on the pilots' available bands, generate an ordered array of FrequencyObjects,
     // building up, what's available to work with, frequency wise.
@@ -30,8 +30,8 @@ const computeFeasibleSolutions = (pilots, minMhzDistance, optMinFreq, optMaxFreq
 
     // =========================================================================================
     // = Preliminary step: Build up general solutions, based on the basic constraints.         =
-    // =                  We will use these as "blueprints", and try to "implement" them in    =
-    // =                  next step.                                                           =
+    // =                   We will use these as "blueprints", and try to "implement" them in   =
+    // =                   next step.                                                          =
     // =========================================================================================
     // generate solution blueprints from ordered frequencies. That is, all possibilities 
     // (= feasible solutions) for the given: 
@@ -39,11 +39,11 @@ const computeFeasibleSolutions = (pilots, minMhzDistance, optMinFreq, optMaxFreq
     // 
     // (this operation is very fast. It takes only about 50ms for full set of all general solutions)
     const solutionBlueprints 
-        = getSolutionsForConstraints(   pilots.length, 
-                                        minMhzDistance, 
-                                        baseFreqArr, 
-                                        optMinFreq ? optMinFreq : baseFreqArr[0].freq, 
-                                        optMaxFreq ? optMaxFreq : baseFreqArr[baseFreqArr.length-1].freq);
+        = getSolutionsForConstraints(pilots.length, 
+                                     minMhzDistance, 
+                                     baseFreqArr, 
+                                     minFrequency ? minFrequency : baseFreqArr[0].freq, 
+                                     maxFrequency ? maxFrequency : baseFreqArr[baseFreqArr.length-1].freq);
     
     // =========================================================================================
     // == Main step: Try to build all "implementations" of a given blueprint (gen. solution) ===
@@ -108,18 +108,18 @@ const computeFeasibleSolutions = (pilots, minMhzDistance, optMinFreq, optMaxFreq
         
     });
     
-    // the lodash flatten seems to be a bit faster than doing it by hand with reduce and concat
-    const flatUnordSolImpls = _.flatten(nestedUnsortedSolutionImplementations)
-    
     return {
         solutionBlueprints: solutionBlueprints,
-        solutions: flatUnordSolImpls
+        solutions: _.flatten(nestedUnsortedSolutionImplementations)
     };
 }
 
 /**
- * evaluate fitness of (feasible) solution-implementation 
- * by max combined frequency diff (very naive approach)
+ * Evaluates the fitness of (a feasible) solution (= blueprint-implementation),
+ * by max combined frequency diff. (Which is a very naive approach)
+ *
+ * @param {Array.<{freq: number}> } solution The solution to compute the fitness for
+ * @returns {number} the absolute fitness value as a number
  */
 const evaluateFitnessByFreqDiff = (solution) => {
     if(!solution || solution.length == 0) {
@@ -139,8 +139,11 @@ const evaluateFitnessByFreqDiff = (solution) => {
 };
 
 /**
- * evaluate fitness of (feasible) solution-implementation 
- * by max weight (aka pilot preference)
+ * Evaluates the fitness of (a feasible) solution (= blueprint-implementation),
+ * by max weight (aka pilot preference).
+ * 
+ * @param {Array.<{freq: number}> } solution The solution to compute the fitness for
+ * @returns {number} the absolute fitness value as a number
  */
 const evaluateFitnessByPilotPreferences = (solution) => {
     if(!solution || solution.length == 0) {
@@ -157,50 +160,61 @@ const evaluateFitnessByPilotPreferences = (solution) => {
  * Combining it all....
  * param "optimizeBy" = "pilot_preference" | "max_mhz_distance"
  */
-const computeSortAndEnrichSolutions = (pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc") => {
+
+
+// a) enrich with fitness value, based on fitness-function choice
+// b) sort by fitness value (sortOrder as given)
+const addAndSortByFitnessFn =  (solutionPool, fnFitness, order="asc") => {
+    let sortedAsc = solutionPool.map((solution) => {
+        return {
+            solution: solution,
+            fitness: fnFitness(solution)
+        };
+    }).sort((a,b) => {
+        if(a.fitness < b.fitness) return -1;
+        if(a.fitness > b.fitness) return 1;
+        if(a.fitness == b.fitness) return 0;
+    });
+
+    if(order === "desc") {
+        return sortedAsc.reverse();
+    };
+}
+
+
+// pilots, minMhzDistance, optimizeBy=OPTIMIZEBY_PILOT_PREFERENCE, sortOrder="desc"
+const computeSortAndEnrichSolutions = (args) => {
+    // defaulting optional, but needed args
+    if(!args.optimizeBy) {
+        args.optimizeBy = OPTIMIZEBY_PILOT_PREFERENCE;
+    }
+    if(!args.sortOrder) {
+        args.sortOrder = "desc";
+    }
+
     const fnFitness 
-        = optimizeBy === OPTIMIZEBY_PILOT_PREFERENCE 
+        = args.optimizeBy === OPTIMIZEBY_PILOT_PREFERENCE 
             ? evaluateFitnessByPilotPreferences 
             : evaluateFitnessByFreqDiff;
-
-    // a) enrich with fitness value, based on fitness-function choice
-    // b) sort by fitness value (sortOrder as given)
-    const addAndSortByFitnessFn =  (solutionPool, fnFitness, order="asc") => {
-        let sortedAsc = solutionPool.map((solution) => {
-            return {
-                solution: solution,
-                fitness: fnFitness(solution)
-            };
-        }).sort((a,b) => {
-            if(a.fitness < b.fitness) return -1;
-            if(a.fitness > b.fitness) return 1;
-            if(a.fitness == b.fitness) return 0;
-        });
-
-        if(order === "desc") {
-            return sortedAsc.reverse();
-        };
-    }
     
     // compute solutions (blueprints), based on general constraints
-    const feasibleSolutions = computeFeasibleSolutions(pilots, minMhzDistance);
+    const feasibleSolutions = computeFeasibleSolutions(args.pilots, 
+                                                       args.minMhzDistance, 
+                                                       args.minFrequency, 
+                                                       args.maxFrequency);
+
     // compute solutions (implementations of said blueprints) that also fulfill the pilot constraints
     const orderedSolutionsWithFitness
         = addAndSortByFitnessFn(feasibleSolutions.solutions, 
                                 fnFitness, 
-                                sortOrder);
-
+                                args.sortOrder);
 
     // order individual(!) solution by pilot input order. (so we re-order the inner order)
     const pOrdSolsWFitness 
         = orderedSolutionsWithFitness.map((solutionWithFitness) => {
-                const remappedSolution = pilots.map((pilot) => {            
-                                                    return solutionWithFitness.solution.find((pfo) => pfo.pilotName === pilot.pilot_name);
-                                                })
-                                                // flatten
-                                                .reduce((a,b) => {
-                                                    return a.concat(b);
-                                                },[]);
+                const remappedSolution = _.flatten(args.pilots.map((pilot) => {            
+                    return solutionWithFitness.solution.find((pfo) => pfo.pilotName === pilot.pilot_name);
+                }));
 
                 solutionWithFitness.solution = remappedSolution;
                 return solutionWithFitness;
@@ -245,21 +259,32 @@ module.exports = {
     new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"], ["R"])
 ];*/
 
-/* ...results in a cartesian product of all, so, this stresses the algorithm the most */ 
+/* ...results in a cartesian product of all, so, this stresses the algorithm the most 
 const pilots = [
     new FpvPilot("name1", "craft-01", null, ["A", "B", "E", "F", "R"]),
     new FpvPilot("name2", "craft-02", null, ["A", "B", "E", "F", "R"]),
     new FpvPilot("name3", "craft-03", null, ["A", "B", "E", "F", "R"]),
     new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"])
 ];
+*/
 
-
+/*
 // by pilots' preferences
+const inputArgs = {
+    pilots, 
+    minMhzDistance: 60, 
+    optimizeBy: OPTIMIZEBY_PILOT_PREFERENCE, 
+    sortOrder: "desc"
+    //,minFrequency: 5725,
+    //,maxFrequency: 5880
+}
+
 const from = Date.now();
-const result = computeSortAndEnrichSolutions(pilots, 60);
+const result = computeSortAndEnrichSolutions(inputArgs);
 console.log("sec:", (Date.now() - from)/1000);
 
 console.log("num solution blueprints (= valid combinations): " +result.solution_blueprints.length);
 console.log("stats: ", result.statistics);
 console.log("Best: Solution: ",result.solutions_with_fitness[0]);
 console.log("Worst: Solution: ",result.solutions_with_fitness[result.solutions_with_fitness.length-1]);
+*/

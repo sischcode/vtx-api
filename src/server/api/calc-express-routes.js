@@ -92,10 +92,16 @@ const addCalcExpressRoutes = (app) => {
         // the result is an object where:
         // - the solutions are ordered by fitness desc (so, best first)
         // - the individual solution itself (array) is ordered by the given pilot input order
+        const inputArgs = {
+            pilots: fpvPilotArr, 
+            minMhzDistance: minMhzSpacing, 
+            optimizeBy: optimizeBy, 
+            sortOrder: "desc",
+            minFrequency: options.min_frequency ? options.min_frequency : null,
+            maxFrequency: options.max_frequency ? options.max_frequency : null
+        };
         const computationResult 
-            = computeSortAndEnrichSolutions(fpvPilotArr, 
-                                            minMhzSpacing, 
-                                            optimizeBy);
+            = computeSortAndEnrichSolutions(inputArgs);
 
         // =============================================================================================
         // Case: return with no solution

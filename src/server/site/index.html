@@ -195,16 +195,28 @@
                             </div> 
                             <!-- /OPTIONS: optimize_by -->
 
+                            <!-- DE freqs only? -->
+                            <div class="col col-xs-12 col-sm-2 col-md-2 col-lg-2">     
+                                <label for="inp-cb-legal_de"><abbr title="The legal frequencies in DE are &gt;= 5725 MHz and &lt;= 5880 MHz">DE Freqs. only?:</abbr></label> 
+                                <div class="form-group">              
+                                    <div class="checkbox-inline">
+                                        <input id="inp-cb-debug-api" type="checkbox" v-model="restrict_to_de_freqs">Yes
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /DE freqs only? -->
+
                             <!-- OPTIONS: debug? -->
-                            <div class="col col-xs-12 col-sm-2 col-md-2 col-lg-1">     
+                            <div class="col col-xs-12 col-sm-2 col-md-2 col-lg-1" v-show="false">     
                                 <label for="inp-cb-debug-api">Debug?:</label> 
                                 <div class="form-group">              
                                     <div class="checkbox-inline">
-                                        <input id="inp-cb-debug-api" type="checkbox" v-model="debug.is_debug_mode">Yep!
+                                        <input id="inp-cb-debug-api" type="checkbox" v-model="debug.is_debug_mode">Do it!
                                     </div>
                                 </div>
                             </div>
                             <!-- /OPTIONS: debug? -->
+
                         </div>
                     </div>
                 </div>

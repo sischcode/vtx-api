@@ -102,6 +102,18 @@ const validateInputObj = validator({
                     minimum: 40,
                     maximum: 150
                 },
+                min_frequency: {
+                    required: false,
+                    type: "integer",
+                    minimum: 5645,
+                    maximum: 5945
+                },
+                max_frequency: {
+                    required: false,
+                    type: "integer",
+                    minimum: 5645,
+                    maximum: 5945
+                },
                 num_results: {
                     required: false,
                     type: "string",

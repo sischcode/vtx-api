@@ -172,6 +172,7 @@ const pilotInput = new Vue({
     data: {
         pilots: [],
         prefs: {},
+        restrict_to_de_freqs: false,
         result: {},
         error: {},
         debug: {},
@@ -193,6 +194,7 @@ const pilotInput = new Vue({
             dataInit = init();
             this.pilots = dataInit.pilots;
             this.prefs = dataInit.prefs;
+            this.restrict_to_de_freqs = false,
             this.result = dataInit.result;
             this.error = dataInit.error;
             this.debug = dataInit.debug;
@@ -243,7 +245,9 @@ const pilotInput = new Vue({
                 options: {
                     optimize_by: this.prefs.optimize_by,
                     min_mhz_spacing: this.prefs.min_mhz_dist,
-                    num_results: this.debug.is_debug_mode ? 'MAX_TOP_10' : this.prefs.num_results
+                    num_results: this.debug.is_debug_mode ? 'MAX_TOP_10' : this.prefs.num_results,
+                    min_frequency: this.restrict_to_de_freqs ? 5725 : 5645,
+                    max_frequency: this.restrict_to_de_freqs ? 5880 : 5945,
                 }
             };
 
