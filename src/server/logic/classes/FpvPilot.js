@@ -22,6 +22,40 @@ class FpvPilot {
         this.preferred_bands = preferred_bands;
         this.preferred_frequencies = preferred_frequencies;
         this.polarization = polarization;
+
+        // the following 4 properties are computed here, though keep in mind, that
+        // this will currently NOT be recomputed, when values (frequencies) of the
+        // pilot are changed!!!
+        // Currently this is duplicate code, i've yet figure how to cleanup correctly
+
+        this.weightedFreqObjArrOfPrefFreqs 
+            = preferred_frequencies 
+                ? preferred_frequencies.map(FrequencyUtils.mkFrequencyObjectFromFreqId)
+                                       .filter((e) => e !== undefined)
+                                       .filter((e) => e !== null)
+                                       .map((e) => WeightedFrequencyObject.fromFrequencyObject(e, 8))    // weight of 8
+                :[];
+        
+        this.weightedFreqObjArrOfPrefBands = FrequencyUtils.mkFrequencyObjectArrFromBandIdArr(this.preferred_bands)
+                                                           .map((e) => WeightedFrequencyObject.fromFrequencyObject(e, 4));    // weight of 4
+
+        this.weightedFreqObjArrOfBands = FrequencyUtils.mkFrequencyObjectArrFromBandIdArr(this.bands)
+                                                       .map((e) => WeightedFrequencyObject.fromFrequencyObject(e, 2));    // weight of 2              
+
+        
+        // a) deduplicate (and when doing so, preferize by weight, where duplicates are)
+        // b) add pilot-name and polarisation info and convert to 'PilotFrequencyObject's
+        this.dedupedWeightedPilotFreqObjArr = 
+            WeightedFrequencyObject.dedupAndPreferizeWeightedFreqsObjArr([].concat(this.weightedFreqObjArrOfPrefFreqs)
+                                                                           .concat(this.weightedFreqObjArrOfPrefBands)
+                                                                           .concat(this.weightedFreqObjArrOfBands) )
+                                    .map((weightedFreqObj) => {
+                                        return PilotFrequencyObject.fromWeightedFrequencyObject(weightedFreqObj, 
+                                                                                                this.pilot_name,
+                                                                                                this.craft_name, 
+                                                                                                this.polarization);
+                                    });           
+                
     }
 
     static fromSimpleObject(obj) {
@@ -33,53 +67,13 @@ class FpvPilot {
                             obj.preferred_frequencies,
                             obj.polarization);
     }
-
-    getWeightedFreqObjArrOfPrefFreqs() {
-        if(!this.preferred_frequencies) {
-            return [];
-        }
-        return this.preferred_frequencies.map(FrequencyUtils.mkFrequencyObjectFromFreqId)
-                                         .filter((e) => e !== undefined)
-                                         .filter((e) => e !== null)
-                                         .map( (e) => WeightedFrequencyObject.fromFrequencyObject(e, 8));    // weight of 8
-    };
-
-    getWeightedFreqObjArrOfPrefBands() {
-        return FrequencyUtils.mkFrequencyObjectArrFromBandIdArr(this.preferred_bands)
-                             .map( (e) => WeightedFrequencyObject.fromFrequencyObject(e, 4));    // weight of 4
-    }
-
-    getWeightedFreqObjArrOfBands() {
-        return FrequencyUtils.mkFrequencyObjectArrFromBandIdArr(this.bands)
-                             .map( (e) => WeightedFrequencyObject.fromFrequencyObject(e, 2));    // weight of 2                         
-    }
-
-    /**
-     * return an array of "PilotFrequencyObject"s
-     */
-    getDedupedWeightedPilotFreqObjArr() {
-        // construct all possible frequencies
-        const availableWeightedFreqsRaw 
-            = this.getWeightedFreqObjArrOfPrefFreqs()
-                    .concat(this.getWeightedFreqObjArrOfPrefBands())
-                        .concat(this.getWeightedFreqObjArrOfBands());
-
-        // a) deduplicate (and when doing so, preferize by weight, where duplicates are)
-        // b) add pilot-name and polarisation info and convert to 'PilotFrequencyObject's
-        return WeightedFrequencyObject.dedupAndPreferizeWeightedFreqsObjArr(availableWeightedFreqsRaw)
-                                      .map((weightedFreqObj) => {
-                                          return PilotFrequencyObject.fromWeightedFrequencyObject(weightedFreqObj, 
-                                                                                                  this.pilot_name,
-                                                                                                  this.craft_name, 
-                                                                                                  this.polarization);
-                                      });
-    }
-
+    
     /**
      * return a "PilotFrequencyObject" for a frequency
+     * ( we us the "cached" variant of the deduped frequencies now)
      */
     getPilotFrequencyObjectForFreq(freq) {
-        return this.getDedupedWeightedPilotFreqObjArr().find((weightedFreqObj) => {
+        return this.dedupedWeightedPilotFreqObjArr.find((weightedFreqObj) => {
             return weightedFreqObj.freq === freq;
         });
     }
@@ -102,15 +96,9 @@ class FpvPilot {
         }
 
         if(this.preferred_frequencies) {
-            return _.uniq(this.preferred_frequencies
-                              .map(FrequencyUtils.mkFrequencyObjectFromFreqId)
-                              .filter((e) => e !== undefined)
-                              .map( (obj) => obj.band)
-                              // flatten
-                              .reduce((a,b) => {
-                                  return a.concat(b);
-                              },[])
-            );
+            return _.uniq(_.flatten(this.preferred_frequencies.map(FrequencyUtils.mkFrequencyObjectFromFreqId)
+                                                              .filter(e => e !== undefined)
+                                                              .map(obj => obj.band) ) );
         }
 
         return [];
@@ -123,17 +111,14 @@ class FpvPilot {
         if(!fpvPilotsArr || !_.isArray(fpvPilotsArr)) {
             return [];
         }
-        return _.uniq(fpvPilotsArr.map((pilot) => pilot.getAvailableBands())                
-                                  .reduce((a,b) => {
-                                       return a.concat(b);
-                                  },[]));
+        return _.uniq(_.flatten(fpvPilotsArr.map(pilot => pilot.getAvailableBands() )));
     }    
 
     /**
      * returns an array of "PilotFrequencyObject"s
      */
     static getPilotFrequencyObjectsForFreq(freq, pilots) {
-        return pilots.map((pilot) => pilot.getPilotFrequencyObjectForFreq(freq));
+        return pilots.map(pilot => pilot.getPilotFrequencyObjectForFreq(freq));
     };
 }
 
@@ -191,4 +176,18 @@ const testPilot3 = new FpvPilot(
 );
 const pilots = [testPilot2,testPilot3];
 console.log(FpvPilot.getPossibleBandPoolFromPilots(pilots));
+*/
+
+/*
+const testPilot = new FpvPilot(
+    'Name-01',
+    'Craft-01',
+    'ET25R',
+    ["B"],
+    ["R"],
+    ["R1"]
+);
+console.log(testPilot.getDedupedWeightedPilotFreqObjArr().map(e => e.freq));
+console.log("-------");
+console.log(testPilot.dedupedWeightedPilotFreqObjArr.map(e => e.freq));
 */

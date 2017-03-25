@@ -53,7 +53,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
             // Resulting in a nested array of "PilotFrequencyObject"s.
 
             // get the weight of particular frequency(!) from pilot (if possible)
-            return FpvPilot.getPilotFrequencyObjectsForFreq(blueprintFreqObj.freq, pilots) //may contain expensive operations as well
+            return FpvPilot.getPilotFrequencyObjectsForFreq(blueprintFreqObj.freq, pilots) // <-- this is where the expensiveness lies (...lied)
                            .filter((pFreqObj) => pFreqObj !== undefined);            
         });
 
@@ -80,7 +80,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         // pilot-combinations. (since many pilots can potentially use a certain frequency of a "solution")
         // ===============================================================================================
         
-        /* Older, less efficient, but also far less complicated...
+        /* Older, way less efficient, but also far less complicated...
 
         const blueprintImplementationsCP = Combinatorics.cartesianProduct(...currBlueprintTupleBase).toArray();
         // find valid combinations/solution-blueprint-implementations (based on unique #pilots)
@@ -90,8 +90,12 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         });
         return feasibleBlueprintImplementations;
         */
+
+        return computePathsForTrees(currBlueprintTupleBase).filter((innerblueprint) => {
+            const uniqueNames = _.uniq(innerblueprint.map((pFreqObj) => pFreqObj.pilotName));
+            return uniqueNames.length === pilots.length;                          
+        });
         
-        return computePathsForTrees(currBlueprintTupleBase);
     });
     
     // the lodash flatten seems to be a bit faster than doing it by hand with reduce and concat
@@ -231,7 +235,7 @@ module.exports = {
     new FpvPilot("name4", "craft-04", null, ["A", "B", "E", "F", "R"], ["R"])
 ];*/
 
-/* ...results in a cartesian product of all, so, this stresses the algorithm the most
+/* ...results in a cartesian product of all, so, this stresses the algorithm the most  
 const pilots = [
     new FpvPilot("name1", "craft-01", null, ["A", "B", "E", "F", "R"]),
     new FpvPilot("name2", "craft-02", null, ["A", "B", "E", "F", "R"]),
@@ -243,7 +247,7 @@ const pilots = [
 /*
 // by pilots' preferences
 const from = Date.now();
-const result = computeSortAndEnrichSolutions(pilots, 40);
+const result = computeSortAndEnrichSolutions(pilots, 60);
 console.log("sec:", (Date.now() - from)/1000);
 
 console.log("num solution blueprints (= valid combinations): " +result.solution_blueprints.length);
