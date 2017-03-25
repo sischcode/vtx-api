@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const Combinatorics = require('js-combinatorics');
 
-const {mk2} = require('./tree-paths');
+const {computePathsForTrees} = require('./tree-paths');
 const FrequencyUtils = require('./classes/FrequencyUtils');
 const FpvPilot = require('./classes/FpvPilot');
 const { getSolutionsForConstraints } = require('./generate-general-solution-pool'); // instead of "generateIncreasedSolutionPoolByMaximizingMinMhzDistanceConstraint"
@@ -79,8 +79,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         // I.e. we build up the frequency-list of the "blueprint" all the time, but with different 
         // pilot-combinations. (since many pilots can potentially use a certain frequency of a "solution")
         // ===============================================================================================
-        //console.log("feasible blueprint:", currBlueprintTupleBase);        
-
+        
         /* Older, less efficient, but also far less complicated...
 
         const blueprintImplementationsCP = Combinatorics.cartesianProduct(...currBlueprintTupleBase).toArray();
@@ -92,7 +91,7 @@ const computeFeasibleSolutions = (pilots, minMhzDistance) => {
         return feasibleBlueprintImplementations;
         */
         
-        return mk2(currBlueprintTupleBase);
+        return computePathsForTrees(currBlueprintTupleBase);
     });
     
     // the lodash flatten seems to be a bit faster than doing it by hand with reduce and concat
