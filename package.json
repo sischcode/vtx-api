@@ -12,7 +12,7 @@
     "test:ava:watch": "nodemon --exec \"npm test:ava\""
   },
   "engines": {
-    "node": "6.9.0"
+    "node": "8.1.4"
   },
   "author": "Jörg S.",
   "license": "GPLv3",
